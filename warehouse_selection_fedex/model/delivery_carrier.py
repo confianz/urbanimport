@@ -3,8 +3,8 @@
 from odoo import models, api, fields, _
 from odoo.exceptions import UserError
 import logging
-from fedex.config import FedexConfig
-from fedex.services.address_validation_service import FedexAddressValidationRequest
+from odoo.addons.fedex.config import FedexConfig
+from odoo.addons.fedex.services.address_validation_service import FedexAddressValidationRequest
 from odoo.addons.delivery_fedex.models.fedex_request import FedexRequest
 from odoo.addons.delivery_fedex.models.delivery_fedex import _convert_curr_iso_fdx
 from zeep.exceptions import Fault

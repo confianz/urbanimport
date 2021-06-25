@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="internal_transfer_form" model="ir.ui.view">
+        <field name="name">internal.transfer.extension.form</field>
+        <field name="model">internal.transfer.extension</field>
+        <field name="arch" type="xml">
+            <form name="Internal Transfer">
+                <header>
+                    <button name="action_transfer" string="Confirm Transfer" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('state', 'in', ('done','confirm'))]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done,confirm"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object"
+                                name="action_view_deliveries"
+                                class="oe_stat_button"
+                                icon="fa-truck"
+                                attrs="{'invisible': [('delivery_count', '=', 0)]}" >
+                            <field name="delivery_count" widget="statinfo" string="Deliveries"/>
+                        </button>
+                        <button name="action_view_receipts"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-truck"
+                                attrs="{'invisible': [('receipt_count', '=', 0)]}">
+                            <field name="receipt_count" widget="statinfo" string="Receipts"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="reference" attrs="{'readonly': [('state', '=', 'confirm')]}" />
+                            <field name="carrier_id" attrs="{'readonly': [('state', '=', 'confirm')]}"/>
+                            <field name="scheduled_date" attrs="{'readonly': [('state', '=', 'confirm')]}"/>
+                            <field name="source_warehouse_id" attrs="{'readonly': [('state', '=', 'confirm')]}" options="{'no_create_edit': True}"/>
+                            <field name="destination_warehouse_id" attrs="{'readonly': [('state', '=', 'confirm')]}" options="{'no_create_edit': True}"/>
+                            <field name="location_id" domain="[('usage','=','internal')]"
+                                   attrs="{'readonly': [('state', '=', 'confirm')], 'invisible': [('source_warehouse_id', '=', False)]}"/>
+                            <field name="location_dest_id" domain="[('usage','=','internal')]"
+                                   attrs="{'readonly': [('state', '=', 'confirm')], 'invisible': [('destination_warehouse_id', '=', False)]}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Detailed Operations">
+                            <field name="transfer_line_ids"
+                                   attrs="{'readonly': [('state', '=', 'confirm')]}">
+                                <tree editable="bottom">
+                                    <field name="product_id"  required="1"/>
+                                    <field name="name" readonly="1" force_save="1"/>
+                                    <field name="product_tmpl_id" invisible="1"/>
+                                    <field name="ordered_qty"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="internal_transfer_tree" model="ir.ui.view">
+        <field name="name">internal.transfer.extension.tree</field>
+        <field name="model">internal.transfer.extension</field>
+        <field name="arch" type="xml">
+            <tree string="Internal Transfer">
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="scheduled_date"/>
+                <field name="location_id"/>
+                <field name="location_dest_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="action_internal_transfer" model="ir.actions.act_window">
+        <field name="name">Internal Transfer</field>
+        <field name="res_model">internal.transfer.extension</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_internal_transfer" 
+                name="Internal Transfer" 
+                action="action_internal_transfer"
+              parent="stock.menu_stock_warehouse_mgmt"
+              groups="stock.group_stock_user" sequence="1"/>
+
+</odoo>

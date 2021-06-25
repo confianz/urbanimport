@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="batch_picking_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-set="picking_list" t-value="get_picking_list(o)"/>
+                    <t t-call="web.basic_layout">
+                         <div class="page">
+                            <table class="nobreak" style="width: 100%;">
+                                <tbody>
+                                    <tr t-foreach="picking_list" t-as="pick" style="page-break-inside:avoid; page-break-after:auto;">
+                                        <tr>
+                                            <td>
+                                                <hr style="background-color:black;height:1px;margin-bottom:0px;"/>
+                                               <hr style="background-color:black;margin-top:2px;"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="float:left;width:20%;">
+                                                <strong>Order Date: </strong>
+                                            </td>
+                                            <td  style="float:left;width:45%;">
+                                               <span t-esc="pick['scheduled_date']" />
+                                            </td>
+                                              <td  style="float:left;width:15%;">
+                                                <strong>Sale ID :</strong>
+                                            </td>
+                                             <td  style="float:left;width:20%;">
+                                               <span t-esc="pick['name']"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s&amp;quiet=%s' % ('Code128', pick['name'], 400, 100, 0)" style="float:right;width:300px;height:70px" alt="Barcode"/>
+                                            </td>
+                                        </tr>
+                                        <td>
+                                            <hr class ="new1"/>
+                                             <h3><strong>Items:</strong></h3>
+                                             <hr class ="new1"/>
+                                        </td>
+                                        <tr>
+                                           <td style="float:left;width:15%;font-size:20px;">
+                                                <strong class="serif" >SKU :</strong>
+                                           </td>
+                                     <td style="float:left;">
+                                        <span t-esc="pick['SKU']"/>
+                                   </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="float:left;width:15%;font-size:20px;">
+                                                <strong class="serif">Pick Qty :</strong>
+                                            </td>
+                                             <td style="float:left;">
+                                                <span t-esc="pick['pick_qty']" class="numberCircle  badge badge-pill"/>
+                                             </td>
+                                        </tr>
+                                       <tr>
+                                           <td><strong>Locations: </strong></td>
+                                       </tr>
+                                        <tr>
+                                            <t t-foreach="pick['location_qty']" t-as="loc_qty">
+                                                    <td style="float:left;font-size:20px;">
+                                                        <span t-esc="loc_qty[0]"/>
+                                                        <span t-esc="loc_qty[1]" class="dot badge badge-pill"/>
+                                                    </td>
+                                            </t>
+                                        </tr>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p style=" page-break-inside:avoid; page-break-after:auto;"/>
+                         </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
+

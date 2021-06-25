@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <data>
+        <record id="container_customs_clearence" model="ir.ui.view">
+            <field name="name">Transfer To Warehouse</field>
+            <field name="model">select.container.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Transfer Stock To Warehouse">
+                    <p class="oe_grey">
+                        Transfer  Stock To Warehouse.
+                    </p>
+                    <group>
+                        <group>
+                            <field name="destination_loc_id" required="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name='transfer_container_to_wh' string="Transfer To Warehouse" type="object" class="btn-primary" context="{'direct_transfer': context.get('direct_transfer')}"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="action_view_container_wizard" model="ir.actions.act_window">
+            <field name="name"> Transfer To Warehouse</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">select.container.wizard</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_id" ref="container_customs_clearence"/>
+            <field name="view_mode">form</field>
+            <field name="context">{'direct_transfer': context.get('direct_transfer')}</field>
+            <field name="target">new</field>
+        </record>
+
+<!--        <record model="ir.values" id="action_transfer_to_warehouse">-->
+<!--            <field name="model_id" ref="container_management.model_container_container" />-->
+<!--            <field name="name">Transfer To Warehouse</field>-->
+<!--            <field name="key2">client_action_multi</field>-->
+<!--            <field name="value" eval="'ir.actions.act_window,' + str(ref('action_view_container_wizard'))" />-->
+<!--            <field name="key">action</field>-->
+<!--            <field name="model">container.container</field>-->
+<!--        </record>-->
+        
+<!--        <act_window-->
+<!--            id="action_transfer_to_warehouse"-->
+<!--            res_model="action_view_container_wizard"-->
+<!--            src_model="container.container"-->
+<!--            target="new"-->
+<!--            multi="True"-->
+<!--            key2="client_action_multi"-->
+<!--            view_mode="form"-->
+<!--            name="Transfer To Warehouse"/>-->
+
+     </data>
+</odoo>

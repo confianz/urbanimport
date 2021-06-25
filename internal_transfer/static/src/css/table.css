@@ -1,0 +1,3 @@
+.no_break_inline_sale{
+  page-break-inside: avoid;
+}

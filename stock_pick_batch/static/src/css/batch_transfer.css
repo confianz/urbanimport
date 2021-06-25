@@ -1,0 +1,21 @@
+/** BATCH TRANSFER content **/
+
+hr.new1{
+  margin-top: 1px;
+  margin-bottom: 1px;
+  border : 2px dotted black;
+}
+.numberCircle {
+    background: #DCDCDC;
+    border: 1px dotted black;
+    color: black;
+    text-align: center;
+}
+
+.dot {
+    background: #fff;
+    border: 2px solid black;
+    color:black;
+    text-align: center;
+
+}

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_shipping_label">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.basic_layout">
+                    <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+                    <t t-foreach="doc.package_ids" t-as="package">
+                        <div class="page">
+                            <div class="text-center" style="margin-bottom:70px;width:100%;">
+                                <strong>Packing Slip</strong>
+                            </div>
+                            <div class="row">
+                                <span>
+                                    <strong class="col-12 col-sm-3">Ship To:</strong>
+                                </span>
+                                <span>
+                                    <address class="col-8">
+                                        <div t-if="doc.partner_id.street">
+                                            <span t-field="doc.partner_id.street"/>
+                                        </div>
+                                        <div t-if="doc.partner_id.street2">
+                                            <span t-field="doc.partner_id.street2"/>
+                                        </div>
+                                        <div t-if="doc.partner_id.city or doc.partner_id.zip">
+                                            <span t-field="doc.partner_id.city"/>
+                                            <span t-field="doc.partner_id.zip"/>
+                                        </div>
+                                        <div t-if="doc.partner_id.state_id or doc.partner_id.country_id">
+                                            <span t-field="doc.partner_id.state_id"/>
+                                            <span t-field="doc.partner_id.country_id"/>
+                                        </div>
+                                    </address>
+                                </span>
+                                <span>
+                                    <div class="row">
+                                        <span>
+                                            <strong class="col-12 col-sm-3">Order #</strong>
+                                        </span>
+                                        <strong>
+                                            <h4>
+                                                <span class="col-8" t-field="doc.origin"></span>
+                                            </h4>
+                                        </strong>
+                                    </div>
+                                    <div class="row">
+                                        <span>
+                                            <strong class="col-12 col-sm-3">Date</strong>
+                                        </span>
+                                        <span class="col-8" t-esc="datetime.datetime.now().strftime('%m/%d/%Y')"></span>
+                                        <br/>
+                                        <span>
+                                            <strong class="col-12 col-sm-3">Ship Date</strong>
+                                        </span>
+                                        <span class="col-8" t-esc="doc.scheduled_date.strftime('%m/%d/%Y')"></span>
+                                    </div>
+                                    <div class="row">
+
+                                    </div>
+
+
+                                </span>
+
+                            </div>
+                            <table class="table table-borderless" style="width:100%;">
+                                <thead style="font-size:12px;border:2px solid black;">
+                                    <th style="border:2px solid black;">SKU</th>
+                                    <th style="border:2px solid black;">Qty</th>
+                                </thead>
+                                <tbody>
+                                    <t t-if="package.quant_ids">
+                                        <t t-foreach="package.quant_ids" t-as="quant">
+                                            <tr>
+                                                <td>
+                                                    <strong>
+                                                        <t t-esc="quant.product_id.default_code"></t>
+                                                    </strong>
+                                                </td>
+                                                <td>
+                                                    <strong>
+                                                        <t t-esc="'%.0f'%(quant.quantity)"></t>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-if="not package.quant_ids">
+                                        <t t-foreach="doc.move_line_ids" t-as="line">
+                                            <tr t-if="line.result_package_id == package">
+                                                <td>
+                                                    <strong>
+                                                        <t t-esc="line.product_id.default_code"></t>
+                                                    </strong>
+                                                </td>
+                                                <td>
+                                                    <strong>
+                                                        <t t-esc="line.qty_done"></t>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+
+
+                            </table>
+                            <hr width="100%"
+                                style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; "/>
+
+                            <div class="row" style="width:100%;">
+                                <div class="text-center">
+                                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', doc.get_order(), 600, 100)"
+                                         style="width:600px;height:100px" alt="Barcode"/>
+<!--                                    <p t-field="package.name" style="font-size:20px;"></p>-->
+                                    <br/>
+                                    <br/>
+                                    <h6>
+                                        <strong>DO NOT REMOVE OR COVER THIS BARCODE. REQUIRED FOR RETURNS PROCESSING
+                                        </strong>
+                                    </h6>
+                                </div>
+                            </div>
+
+                        </div>
+                        <p style="page-break-before:always;"></p>
+
+                    </t>
+
+                </t>
+            </t>
+        </t>
+    </template>
+
+
+</odoo>

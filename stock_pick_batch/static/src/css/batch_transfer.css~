@@ -1,0 +1,27 @@
+/** BATCH TRANSFER content **/
+
+
+hr.new1{
+  margin-top: 1px;
+  margin-bottom: 1px;
+  border : 2px dotted black;
+}
+.numberCircle {
+    padding: 10px;
+    background: #DCDCDC;
+    border: 1px dotted black;
+    color: black;
+    text-align: center;
+}
+
+.dot {
+    padding: 8px;
+    background: #fff;
+    border: 2px solid black;
+    color:black;
+    text-align: center;
+
+}
+.serif {
+  font-family: "Times New Roman", Times, serif;
+}

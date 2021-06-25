@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_purchase_order_inherit_container" model="ir.ui.view">
+            <field name="name">purchase.order.inherit.container</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
+                    <button name="view_container_lines" type="object" icon="fa-cube"  attrs="{'invisible':[('state', 'in', ('draft','sent','to approve'))]}"/>
+                </xpath>
+                <field name="picking_type_id" position="after">
+                    <field name="warehouse_type" invisible="1"/>
+                </field>
+<!--                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_received']" position="attributes">-->
+<!--                    <attribute name="column_invisible">[('parent.state', 'not in', ('purchase', 'transit', 'done'))]</attribute>-->
+<!--                </xpath>-->
+                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_received']" position="after">
+                    <field name="qty_received_ocean"/>
+                    <field name="qty_received_warehouse"/>
+                    <field name="qty_to_ship"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_received']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <div name="button_box" position="inside">
+                    <button type="action"
+                        name="%(action_view_container_lines_2)d"
+                        class="oe_stat_button"
+                        icon="fa-cube" attrs="{'invisible':[('state', 'in', ('draft','sent','to approve'))]}">
+                            <field string="Containers" name="containers_count" widget="statinfo"/>
+                    </button>
+                </div>
+            </field>
+        </record>
+
+        <record id="container_purchase_order_line_tree" model="ir.ui.view">
+            <field name="name">container.purchase.order.line.tree</field>
+            <field name="model">purchase.order.line</field>
+            <field name="inherit_id" ref="purchase.purchase_order_line_tree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="date_order"/>
+                </field>
+                <field name="product_uom" position="after">
+                    <field name="qty_received"/>
+                </field>
+                <field name="date_planned" position="after">
+                    <field name="state"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_view_purchase_line">
+            <field name="name">Purchase Line </field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order.line</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

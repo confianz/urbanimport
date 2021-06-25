@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+shipstation_account_access_user,shipstation.account.user,model_shipstation_account,base.group_user,1,1,1,0
+shipstation_account_access_erp_manager,shipstation.account.erp.manager,model_shipstation_account,base.group_erp_manager,1,1,1,1
+shipstation_store_access_user,shipstation.store.user,model_shipstation_store,base.group_user,1,1,1,0
+shipstation_store_access_erp_manager,shipstation.store.erp_manager,model_shipstation_store,base.group_erp_manager,1,1,1,1
+shipstation_warehouse_access_user,shipstation.warehouse.user,model_shipstation_warehouse,base.group_user,1,1,1,0
+shipstation_warehouse_access_erp_manager,shipstation.warehouse.erp_manager,model_shipstation_warehouse,base.group_erp_manager,1,1,1,1
+shipstation_carrier_access_user,shipstation.carrier.user,model_shipstation_carrier,base.group_user,1,1,1,0
+shipstation_carrier_access_erp_manager,shipstation.carrier.erp_manager,model_shipstation_carrier,base.group_erp_manager,1,1,1,1
+shipstation_service_access_user,shipstation.service.user,model_shipstation_service,base.group_user,1,1,1,0
+shipstation_service_access_erp_manager,shipstation.service.erp_manager,model_shipstation_service,base.group_erp_manager,1,1,1,1
+shipstation_package_access_user,shipstation.package.user,model_shipstation_package,base.group_user,1,1,1,0
+shipstation_package_access_erp_manager,shipstation.package.erp_manager,model_shipstation_package,base.group_erp_manager,1,1,1,1
+shipping_rate_access_user,shipstation.shipping.rate.user,model_shipping_rate,base.group_user,1,1,1,1

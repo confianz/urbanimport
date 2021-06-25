@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_container_tree" model="ir.ui.view">
+            <field name="name">view.container.tree</field>
+            <field name="model">container.container</field>
+            <field name="arch" type="xml">
+                <tree string="Containers" decoration-danger="priority==True">
+                    <field name="container_no"/>
+                    <field name="container_type"/>
+                    <field name="mhbl_id"/>
+                    <field name="freight_forwarder_id"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="port_date"/>
+                    <field name="freight_charge" widget="monetary"/>
+                    <field name="state"/>
+                    <field name="last_note"/>
+                    <field name="priority" invisible="1"/>
+                    <button name="priority" icon="fa-flag text-danger" attrs="{'invisible': [('priority','=',False)]}"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="container_search_view" model="ir.ui.view">
+            <field name="name">container.container.filter</field>
+            <field name="model">container.container</field>
+            <field name="arch" type="xml">
+                <search string="Containers">
+                    <field name="container_no"/>
+                    <field name="state"/>
+                    <field name="cont_product_sku"/>
+                    <!--                    <field name="cont_product_customer_sku"/>-->
+                    <group expand="1" string="Group By">
+                        <filter string="Container Type." name="groupby_container_type" domain="[]"
+                                context="{'group_by': 'container_type'}"/>
+                        <filter string="MBL" name="groupby_mhbl_id" domain="[]" context="{'group_by': 'mhbl_id'}"/>
+                        <filter string="Freight Forwarder" name="groupby_freight_forwarder_id" domain="[]"
+                                context="{'group_by': 'freight_forwarder_id'}"/>
+                        <filter string="State" name="groupby_state" domain="[]" context="{'group_by': 'state'}"/>
+                        <filter string="Priority" name="priority" domain="[('priority', '=', True)]"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="view_container_form" model="ir.ui.view">
+            <field name="name">view.container.form</field>
+            <field name="model">container.container</field>
+            <field name="arch" type="xml">
+                <form string="Containers">
+                    <header>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,ready,in ocean,received port,customs cleared,received warehouse"
+                               readonly="1"/>
+                        <button name='action_review_shipment' string="Review Shipment" type="object"
+                                states="customs cleared"/>
+                        <button name='action_ready_to_pick' string="Ready To Pick" type="object" states="review"/>
+                        <button name="%(action_view_container_wizard)d" string="Transfer To Warehouse" type="action"
+                                class="btn-primary" states="customs cleared,received partial"
+                                context="{'direct_transfer': False}"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_stock_moves" class="oe_stat_button" type="object"
+                                    icon="fa-exchange" attrs="{'invisible' : [('stock_move_count','=',0)]}">
+                                <field name="stock_move_count" widget="statinfo" string="Stock Moves"/>
+                            </button>
+                        </div>
+                        <div class="oe_right">
+                            <button name="priority" icon="fa-circle text-danger"
+                                    attrs="{'invisible': [('priority','=',False)]}" string="High Priority"
+                                    readonly="1"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="container_no" required="1"/>
+                                <field name="container_type" required="1"/>
+                                <field name="mhbl_id" invisible="context.get('hide_mhbl',True)"
+                                       domain="[('state','in',['draft','ready'])]"
+                                       required="context.get('required',False)"/>
+                            </group>
+                            <group>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="freight_charge" widget="monetary"/>
+                                <field name="priority"/>
+                            </group>
+                        </group>
+                        <notebook invisible="context.get('hide_container_line',True)">
+                            <page string="Container Lines">
+                                <field name="container_lines" context="{'mhbl_id': mhbl_id}">
+                                    <tree editable="inline">
+                                        <field name='po_id'
+                                               domain="[('state','in',['purchase','transit']),('is_ocean_order','!=',True),('warehouse_type', '=', 'ocean')]"
+                                               required="1"
+                                               options="{'no_quick_create': True, 'no_create_edit' : True, 'no_create': True}"/>
+                                        <field name='purchase_line'
+                                               domain="[('order_id', '=', po_id),('is_ocean_line','!=',True)]"
+                                               required="1"
+                                               options="{'no_quick_create': True, 'no_create_edit' : True, 'no_create': True}"/>
+                                        <field name='ordered_qty'/>
+                                        <field name='qty_to_load' required="1"/>
+                                        <field name="date_at_ocean" invisible="1"/>
+                                        <!--                                        <field name="hbl_id" required="1" domain="[('mhbl_id','=',context.get('mhbl_id',False))]" widget="selection"/>-->
+                                        <field name="state" readonly="1"/>
+                                        <button name="action_clear_customs" type="object" icon="fa-play"
+                                                string="Clear Customs" states="received port"
+                                                context="{'reload' : True}"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <page string="Tracking Updates">
+                                <field name="note_ids" nolabel="1" context="{'default_container_id' : active_id}">
+                                    <tree editable="inline">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="status_date" required="1"/>
+                                        <field name="container_id"
+                                               domain="[('id','=',context.get('default_container_id', False))]"
+                                               required="1"/>
+                                        <field name="name" required="1"/>
+                                        <field name="user_id" readonly="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_container_lines_tree" model="ir.ui.view">
+            <field name="name">view.container.lines.tree</field>
+            <field name="model">container.line</field>
+            <field name="arch" type="xml">
+                <tree string="Container Lines" create="0">
+                    <field name="container_id" widget="many2one_clickable"/>
+                    <field name="mbl_id" widget="many2one_clickable"/>
+                    <field name="hbl_id"/>
+                    <field name="etd"/>
+                    <field name='po_id'/>
+                    <field name='purchase_line'/>
+                    <field name="ordered_qty"/>
+                    <field name="qty_to_load"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record id="container_line_search_view" model="ir.ui.view">
+            <field name="name">container.line.filter</field>
+            <field name="model">container.line</field>
+            <field name="arch" type="xml">
+                <search string="Container Lines">
+                    <field name="purchase_line"/>
+                    <field name="po_id"/>
+                    <field name="hbl_id" filter_domain="[('hbl_id.lading_no','ilike',self)]"/>
+                    <field name="container_id"/>
+                    <group string="Group By">
+                        <filter string="Item Name" name="groupby_item_name" domain="[]"
+                                context="{'group_by': 'purchase_line'}"/>
+                        <filter string="Purchase Order" name="groupby_po_id" domain="[]"
+                                context="{'group_by': 'po_id'}"/>
+                        <filter string="Container No." name="groupby_container_id" domain="[]"
+                                context="{'group_by': 'container_id'}"/>
+                        <filter string="HBL." name="groupby_hbl_id" domain="[]" context="{'group_by': 'hbl_id'}"/>
+                        <filter string="ETD" name="groupby_etd" domain="[]" context="{'group_by': 'etd'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_container_lines_form" model="ir.ui.view">
+            <field name="name">view.container.line.form</field>
+            <field name="model">container.line</field>
+            <field name="arch" type="xml">
+                <form string="Container Lines" create="false" edit="false">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="hbl_id"/>
+                                <field name="container_id" context="{'hide_container_line' : False}"/>
+                                <field name="state"/>
+                                <field name="etd"/>
+                            </group>
+                            <group>
+                                <field name='po_id'
+                                       domain="[('state','in',['purchase','transit']),('is_ocean_order','!=',True),('warehouse_type', '=', 'ocean')]"
+                                       options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                                <field name='purchase_line'
+                                       domain="[('order_id', '=', po_id),('is_ocean_line','!=',True)]"
+                                       options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                                <field name='qty_to_load'/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_view_container_lines_2" model="ir.actions.act_window">
+            <field name="name">Container Lines</field>
+            <field name="res_model">container.line</field>
+            <field name="type">ir.actions.act_window</field>
+            <!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="domain"></field>
+            <field name="context">{
+                'search_default_po_id': [active_id],
+                'default_po_id': active_id,
+                'search_default_groupby_item_name': 1
+                }
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_view_container">
+            <field name="name">Containers</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">container.container</field>
+            <!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'hide_container_line' : False, 'hide_mhbl' :False, 'required':True}</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_view_all_containers">
+            <field name="name">All Containers</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">container.container</field>
+            <!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'hide_container_line' : False, 'hide_mhbl' :False, 'required':True}</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_view_customs_cleared_containers">
+            <field name="name">Customs Cleared Containers</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">container.container</field>
+            <!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_state' : 'customs cleared','hide_container_line':False}</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_view_container_lines_1">
+            <field name="name">Container Lines</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">container.line</field>
+            <!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

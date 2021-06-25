@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report
+            string="Batch Transfer"
+            id="action_report_pic_batch"
+            model="stock.picking.batch"
+            report_type="qweb-pdf"
+            menu="False"
+            name="stock_pick_batch.batch_picking_report"
+            file="stock_pick_batch.report.batch_picking_report"
+        />
+    </data>
+</odoo>

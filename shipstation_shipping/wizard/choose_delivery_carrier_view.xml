@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="choose_delivery_carrier_view_form_inherit_shipstation" model="ir.ui.view">
+        <field name="name">choose.delivery.carrier.form.inherit.shipstation.shipping</field>
+        <field name="model">choose.delivery.carrier</field>
+        <field name="inherit_id" ref="delivery.choose_delivery_carrier_view_form" />
+        <field name="arch" type="xml">
+            <field name="carrier_id" position="before">
+                <field name="delivery_type_id" required="True" />
+            </field>
+
+            <field name="carrier_id" position="attributes">
+                <attribute name="required">False</attribute>
+                <attribute name="domain">[('delivery_type','=',delivery_type_id)]</attribute>
+            </field>
+            <xpath expr="//label[@for='display_price']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|',('carrier_id','=',
+                    False),('delivery_type','=','shipstation')]}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='display_price']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|',('carrier_id','=',
+                    False),('delivery_type','=','shipstation')]}</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='update_price']" position="attributes">
+                <attribute name="attrs">{'invisible': [('delivery_type_id','in', ('fixed',
+                    'base_on_rule','shipstation'))]}
+                </attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='update_price']" position="after">
+                <button name="get_rate_from_shipstation" type="object"
+                    attrs="{'invisible': [('use_shipstation', '=', False)]}">
+                    <i class="fa fa-arrow-right mr-1" />Get rate
+                </button>
+            </xpath>
+            <field name="carrier_id" position="before">
+                <field name="use_shipstation" invisible="1" />
+                <field name="shipstation_account_id" invisible="1" />
+                <field name="shipstation_service_id" invisible="1" />
+                <field name="shipstation_carrier_id" string="Shipping Carrier" force_save="1"
+                    domain="[('shipstation_account_id', '=', shipstation_account_id)]"
+                    attrs="{'invisible': [('use_shipstation', '=', False)], 'readonly': [('carrier_id', '!=', False)]}" />
+            </field>
+            <field name="carrier_id" position="after">
+                <field name="shipstation_package_id" string="Package"
+                    domain="[('carrier_id', '=', shipstation_carrier_id)]"
+                    attrs="{'invisible': ['|', ('use_shipstation', '=', False), ('shipstation_carrier_id', '=', False)]}" />
+            </field>
+
+            <xpath expr="//group[1]" position="after">
+                <group attrs="{'invisible': [('use_shipstation', '=', False)]}">
+                    <field name="shipping_rate_ids" nolabel="1">
+                        <tree create="0" edit="0" delete="0">
+                            <field name="name" string="Service" />
+                            <field name="cost" />
+                            <field name="price" />
+                            <button name="action_confirm" type="object" icon="fa-plus" class="btn-secondary"
+                                string="Add" />
+                        </tree>
+                        <form>
+                            <sheet>
+                                <div class="oe_title">
+                                    <h1>
+                                        <field name="name" default_focus="1" readonly="1" />
+                                    </h1>
+                                </div>
+                                <group>
+                                    <group>
+                                        <field name="carrier_id" readonly="1" options="{'no_open': True}" />
+                                        <field name="service_id" readonly="1" options="{'no_open': True}" />
+                                        <field name="package_id" attrs="{'readonly': [('package_id', '!=', False)]}"
+                                            widget="selection" />
+                                    </group>
+                                    <group>
+                                        <field name="cost" readonly="1" />
+                                        <field name="price" />
+                                    </group>
+                                </group>
+                            </sheet>
+                            <footer>
+                                <button name="action_confirm" type="object" string="Add" class="btn-primary" />
+                                <button name="action_cancel" type="object" string="Cancel" class="btn-secondary" />
+                            </footer>
+                        </form>
+                    </field>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

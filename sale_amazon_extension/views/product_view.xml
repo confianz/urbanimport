@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="edi_product_form_view" model="ir.ui.view">
+        <field name="name">product.product.edi.view</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']" position="after">
+                <page name="edi_customers" string="EDI Customers">
+                    <field name="edi_customer_ids">
+                        <tree editable="bottom">
+                            <field name="partner_id"/>
+                            <field name="sku_productid" string="SKU Code"/>
+                        </tree>
+                        <form string="EDI Customers">
+                            <group>
+                                <field name="partner_id"/>
+                                <field name="sku_productid" string="SKU Code"/>
+                            </group>
+                        </form>
+                    </field>
+                </page>
+
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

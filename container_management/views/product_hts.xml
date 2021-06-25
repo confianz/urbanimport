@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- form view for ProdcutHTS -->
+        <record model="ir.ui.view" id="product_hts_form_view">
+            <field name="name">product.hts.code</field>
+            <field name="model">product.hts.code</field>
+            <field name="arch" type="xml">
+                <form string="HTS">
+                    <sheet>
+                        <group>
+                            <group>
+                                  <field name="name" invisible="1"/>
+                                  <field name="code" required="1"/>
+                                  <field name="percentage" required="1"/>
+                                  <field name="description"/>
+                                  <field name="revise_date"/>
+                            </group>
+                            <group>
+                                <field name="extra_duty_applicable"/>
+                                <field name="extra_duty"  attrs="{'required': [('extra_duty_applicable', '!=', False)], 'invisible': [('extra_duty_applicable', '=', False)]}"/>
+                                <field name="quantity"  attrs="{'required': [('extra_duty_applicable', '!=', False)], 'invisible': [('extra_duty_applicable', '=', False)]}"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="product_hts_search_tree" model="ir.ui.view">
+            <field name="name">product.hts.code.view</field>
+            <field name="model">product.hts.code</field>
+            <field name="arch" type="xml">
+                <search string="Product HTS">
+                    <field name="code"/>
+                    <field name="description"/>
+                </search>
+            </field>
+        </record>
+
+
+        <!--Tree view for ProdcutHTS -->
+        <record  id="product_hts_tree_view" model="ir.ui.view">
+            <field name="name">product hts tree view</field>
+            <field name="model">product.hts.code</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="description"/>
+                    <field name="revise_date"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Generic view for ProductHTS -->
+        <record id="product_hts_menu_action" model="ir.actions.act_window">
+            <field name="name">Product HTS Codes</field>
+            <field name="res_model">product.hts.code</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create a HTS code</p>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_authorize_net_api_external_payment,authorizenet.api.external.payment,model_authorizenet_api,payment_gateway_ui.group_invoice_correction,1,1,1,0
+access_make_payment,make.payment,model_make_payment,payment_gateway_ui.group_invoice_correction,1,1,1,1

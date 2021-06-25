@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record id="view_picking_form_extensions" model="ir.ui.view">
+            <field name="name">stock.picking.extensions</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <field name="picking_type_id_code" invisible="1"/>
+                    <button name="generate_shipping_label" type="object" string="Print Shipping label"
+                            attrs="{'invisible': [('picking_type_id_code', '!=', 'OUT')]}"/>
+                </xpath>
+<!--                <xpath expr="//field[@name='origin']" position="after">-->
+<!--                     <field name="is_back_order" attrs="{'invisible': [('picking_type_id_code', '!=', 'PICK')],'readonly':[('state','=','done')]}"/>-->
+<!--                 </xpath>-->
+            </field>
+        </record>
+
+<!--        <record id="stock_picking_view_search_inherit_delivery_shipping_label" model="ir.ui.view">-->
+<!--            <field name="name">stock.picking.search.inherit.delivery.shipping.label</field>-->
+<!--            <field name="model">stock.picking</field>-->
+<!--            <field name="inherit_id" ref="stock.view_picking_internal_search"/>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <xpath expr="//filter[@name='my_transfers']" position="after">-->
+<!--                    <filter string="Back Order" name="is_back_order" domain="[('is_back_order', '=', True)]"/>-->
+<!--                </xpath>-->
+<!--            </field>-->
+<!--        </record>-->
+
+        <record id="view_quant_package_form_extensions" model="ir.ui.view">
+            <field name="name">stock.quant.package.extensions</field>
+            <field name="model">stock.quant.package</field>
+            <field name="inherit_id" ref="stock.view_quant_package_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="before">
+                    <label for="height"/>
+                    <div class="o_row" name="height">
+                        <field name="height" string="Height"/>
+                        <span>Inches</span>
+                    </div>
+                    <label for="width"/>
+                    <div class="o_row" name="width">
+                        <field name="width" string="Width"/>
+                        <span>Inches</span>
+                    </div>
+                    <label for="length"/>
+                    <div class="o_row" name="length">
+                        <field name="length" string="Length"/>
+                        <span>Inches</span>
+                    </div>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

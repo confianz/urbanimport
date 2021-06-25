@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="shipstation_account_view_tree" model="ir.ui.view">
+        <field name="name">shipstation.account.tree</field>
+        <field name="model">shipstation.account</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="shipstation_account_view_from" model="ir.ui.view">
+        <field name="name">shipstation.account.form</field>
+        <field name="model">shipstation.account</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" class="oe_highlight"
+                        attrs="{'invisible': [('state', '=', 'active')]}" />
+                    <button name="action_reset" type="object" string="Reset"
+                        attrs="{'invisible': [('state', '=', 'draft')]}" />
+                    <button name="action_refresh" type="object" string="Refresh"
+                        attrs="{'invisible': [('state', '=', 'draft')]}" />
+                    <field name="state" widget="statusbar" statusbar_visible="active" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(shipstation_store_action)d" type="action" string="Stores" class="oe_stat_button"
+                            icon="fa-shopping-bag">
+                        </button>
+                        <button name="%(shipstation_carrier_action)d" type="action" string="Carriers"
+                            class="oe_stat_button" icon="fa-truck">
+                        </button>
+                        <button name="%(shipstation_warehouse_action)d" type="action" string="Warehouses"
+                            class="oe_stat_button" icon="fa-home">
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Account Name" />
+                        <h1>
+                            <field name="name" default_focus="1" required="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="API Authentication">
+                            <field name="api_key" required="1" password="1" />
+                            <field name="api_secret" required="1" password="1" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Configuration">
+                            <group>
+                                <group>
+                                    <field name="company_id" required="1" />
+                                    <field name="shipping_product_id" domain="[('type', '=', 'service')]"
+                                        context="{'default_type': 'service'}" required="1" />
+                                    <label for="markup_rate" />
+                                    <div>
+                                        <field name="markup_rate" class="oe_inline" />
+                                        <span class="oe_inline">%</span>
+                                    </div>
+                                </group>
+                                <group>
+                                    <field name="weight_uom" readonly="1" force_save="1" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="shipstation_account_action" model="ir.actions.act_window">
+        <field name="name">ShipStation Accounts</field>
+        <field name="res_model">shipstation.account</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="shipstation_account_view_tree" />
+    </record>
+
+
+    <menuitem id="shipstation_menu_config" parent="stock.menu_stock_config_settings" name="ShipStation Integration"
+        sequence="50" />
+
+    <menuitem id="shipstation_account_menu" action="shipstation_account_action" parent="shipstation_menu_config"
+        sequence="5" />
+
+</odoo>

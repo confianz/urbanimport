@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+    <function model="ir.config_parameter" name="set_param" eval="('product.weight_in_lbs', '1')"/>
+
+
+    <record id="shipping_charge" model="product.product">
+        <field name="name">Shipping Charges</field>
+        <field name="type">service</field>
+        <field name="default_code">SHIPSTATION</field>
+        <field name="sale_ok" eval="True" />
+        <field name="purchase_ok" eval="False" />
+        <field name="lst_price" eval="0" />
+    </record>
+
+</odoo>

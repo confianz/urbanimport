@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- form view for hbl customs duty -->
+        <record model="ir.ui.view" id="hbl_customs_duty_form_view">
+            <field name="name">hbl.customs.duty.form.view</field>
+            <field name="model">hbl.customs.duty</field>
+            <field name="arch" type="xml">
+                <form string="HBL">
+                    <sheet>
+                         <group>
+                              <field name="date"/>
+                              <field name="hbl_id"/>
+                              <field name="product_id"/>
+                              <field name="vendor_id"/>
+                              <field name="order_id"/>
+                              <field name="hts_ids" widget="many2many_tags"/>
+                              <field name="quantity"/>
+                              <field name="unit_price"/>
+                              <field name="duty_percentage"/>
+
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!--Tree view for hbl customs duty -->
+        <record  id="hbl_customs_duty_tree_view"  model="ir.ui.view">  
+            <field  name="name">hbl.customs.duty tree view</field>  
+            <field  name="model">hbl.customs.duty</field>  
+            <field  name="arch"  type="xml">  
+                <tree create="0" edit="0">
+                     <field name="date"/>
+                     <field name="hbl_id"/>
+                     <field name="product_id"/>
+                     <field name="vendor_id"/>
+                     <field name="order_id"/>
+                     <field name="hts_ids" widget="many2many_tags"/>
+                     <field name="currency_id" invisible="1"/>
+                     <field name="quantity" sum="Quantity"/>
+                     <field name="unit_price"  widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                     <field name="price_total"  widget="monetary" options="{'currency_field': 'currency_id'}" sum="Purchase Total"/>
+                      <field name="duty_percentage"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <!-- Generic view for hbl customs duty -->
+        <record id="hbl_customs_duty_menu_action" model="ir.actions.act_window">
+            <field name="name">Duty Calculation Details</field>
+            <field name="res_model">hbl.customs.duty</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree</field>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create a HBL</p>
+            </field>
+        </record>
+    </data>
+</odoo>

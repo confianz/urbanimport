@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_picking_batch_form_inherit">
+            <field name="name">stock.picking.batch.form.inherit</field>
+            <field name="type">form</field>
+            <field name="model">stock.picking.batch</field>
+            <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/group/group" position="after">
+                    <group>
+                        <!--                        <field name="warehouse_id"/>-->
+                        <field name="picking_type_id" options="{'no_create_edit': True}"/>
+                    </group>
+                </xpath>
+                <field name="user_id" position="before">
+                    <field name="reference" readonly="1"/>
+                </field>
+                <button name="action_cancel" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </button>
+                <xpath expr="//header" position="inside">
+                    <field name="picking_type_id_code" invisible="1"/>
+                    <button name="action_create_label" string="Create Label" type="object"
+                            attrs="{'invisible': [('picking_type_id_code', '!=', 'PICK')]}"/>
+                    <button name="generate_shipping_label" type="object" string="Print Shipping label"
+                            attrs="{'invisible': [('picking_type_id_code', '!=', 'PICK')]}"/>
+
+                </xpath>
+                <xpath expr="//field[@name='picking_ids']/tree/field[@name='location_id']" position="after">
+                    <field name="carrier_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="stock_picking_batch_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.batch.tree.inherit</field>
+            <field name="model">stock.picking.batch</field>
+            <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_tree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="reference"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="vpicktree_inherit" model="ir.ui.view">
+            <field name="name">vpicktree.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.vpicktree"/>
+            <field name="arch" type="xml">
+                <field name="origin" position="after">
+                    <field name="customer_po_number" readonly="1"/>
+                    <field name="dealer" readonly="1"/>
+                </field>
+                <field name="partner_id" position="after">
+                    <field name="product_sku" readonly="1"/>
+                    <field name="qty_order" readonly="1"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_picking_inherit_search" model="ir.ui.view">
+            <field name="name">stock.picking.inherit.search</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='backorder']" position="replace"/>
+                <xpath expr="//field[@name='product_id']" position="after">
+                    <filter name="to_pick" string="To Pick" domain="[('batch_id','=',False)]"/>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

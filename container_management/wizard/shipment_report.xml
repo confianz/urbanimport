@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <data>
+     <record id="view_shipment_report" model="ir.ui.view">
+                <field name="name">Shipment Report</field>
+                <field name="model">po.shipment.report</field>
+                <field name="arch" type="xml">
+                    <form string="Stock Report">
+                        <sheet>
+                            <p class="oe_grey">
+                                 Following dates should be on the basis of ETD in PO Line
+                            </p>
+                                <group>
+                                    <group>
+                                        <field name="from_date" required="1"/>
+                                        <field name="to_date" required="1"/>
+                                        <field name="partner_id" context="{'search_default_supplier':1, 'default_supplier_rank': 1}" domain="[('supplier_rank','>', 0)]"/>
+                                    </group>
+                                    <div>
+                                        <field name="report" nolabel="1" widget="radio" options="{'horizontal': true}"/>
+                                        <field name="file_type" nolabel="1" widget="radio" options="{'horizontal': true}"/>
+                                    </div>
+                                </group>
+                        </sheet>
+                        <footer>
+                            <button name="print_report" string="Print" type="object"
+                                class="btn-primary"/>
+                            <button string="Cancel" class="btn-default" special="cancel"/>
+                        </footer>
+                    </form>
+                </field>
+            </record>
+
+        <record id="view_shipment_report_excel" model="ir.ui.view">
+            <field name="name">PO Shipment Report</field>
+            <field name="model">po.shipment.excel</field>
+            <field name="arch" type="xml">
+                <form string="Po Shipment Excel">
+                    <group >
+                        <field name="name" invisible="1" width="100"/>
+                        <field name="data" nolabel="1" readonly="1" width="100" filename="name"/>
+                    </group>
+                    <footer>
+                        <button special="cancel" string="Close" class="btn-primary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_view_po_shipment_report" model="ir.actions.act_window">
+            <field name="name">PO Shipment Report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">po.shipment.report</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+
+     </data>
+</odoo>

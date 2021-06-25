@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="shipstation_service_view_tree" model="ir.ui.view">
+        <field name="name">shipstation.service.tree</field>
+        <field name="model">shipstation.service</field>
+        <field name="arch" type="xml">
+            <tree create="0">
+                <field name="name" />
+                <field name="code" />
+                <field name="carrier_code" />
+                <field name="is_domestic" />
+                <field name="is_international" />
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="shipstation_service_view_from" model="ir.ui.view">
+        <field name="name">shipstation.service.form</field>
+        <field name="model">shipstation.service</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Service Name" />
+                        <h1>
+                            <field name="name" default_focus="1" required="1" />
+                        </h1>
+                        <div name="options">
+                            <div>
+                                <field name="is_domestic" readonly="1" />
+                                <label for="is_domestic" />
+                            </div>
+                            <div>
+                                <field name="is_international" readonly="1" />
+                                <label for="is_international" />
+                            </div>
+                        </div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field name="carrier_code" />
+                            <field name="carrier_id" invisible="1" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="shipstation_service_action" model="ir.actions.act_window">
+        <field name="name">ShipStation Services</field>
+        <field name="res_model">shipstation.service</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="shipstation_service_view_tree" />
+        <field name="domain">[('carrier_id', '=', active_id)]</field>
+        <field name="context">{}</field>
+    </record>
+
+</odoo>

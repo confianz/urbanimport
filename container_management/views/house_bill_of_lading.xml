@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+         <record id="view_master_house_bill_lading_tree" model="ir.ui.view">
+            <field name="name">view.master.house.bill.lading.tree</field>
+            <field name="model">master.house.bill.lading</field>
+            <field name="arch" type="xml">
+                <tree string="Master Bill Of Lading">
+                    <field name="name"/>
+                    <field name='vessel_name'/>
+                    <field name='etd'/>
+                    <field name='freight_forwarder'/>
+                    <field name='customs_agent_id'/>
+                    <field name="state"/>
+                </tree>
+            </field>
+         </record>
+
+        <record id="house_bill_of_lading_search_view" model="ir.ui.view">
+            <field name="name">house.bill.lading.search.view</field>
+            <field name="model">house.bill.lading</field>
+            <field name="arch" type="xml">
+                <search string="House Bill Of Lading">
+                    <field name="lading_no"/>
+                    <field name="mbl_no" />
+                    <group expand="0" string="Group By">
+                        <filter string="MBL" name="groupby_mhbl_id" domain="[]" context="{'group_by': 'mhbl_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="view_master_house_bill_of_lading" model="ir.ui.view">
+            <field name="name">view.master.house.bill.lading.form</field>
+            <field name="model">master.house.bill.lading</field>
+            <field name="arch" type="xml">
+                <form string="Master Bill Of Lading">
+                   <header>
+                        <button string='Ready To Ship' name='action_ready' type='object' states='draft' class="oe_highlight"/>
+                        <button string="Receive Ocean" name='validate_to_ocean' type='object' class="oe_highlight" states='ready'/>
+                        <button string='Receive In Port' name='action_receive_in_port' type='object' states='in ocean' class="oe_highlight"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,ready,in ocean" readonly="1"/>
+                                             
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_containers"  class="oe_stat_button" type="object"  icon="fa-cube" attrs="{'invisible' : [('container_count','=',0)]}">
+                                <field name="container_count" widget="statinfo" string="Containers"/>
+                            </button>
+                            <button name="action_view_stock_moves"  class="oe_stat_button" type="object"  icon="fa-exchange" attrs="{'invisible' : [('stock_move_count','=',0)]}">
+                                <field name="stock_move_count" widget="statinfo" string="Stock Moves"/>
+                            </button>
+                            <button name="action_view_vendor_bills"  class="oe_stat_button" type="object"  icon="fa-pencil-square-o" attrs="{'invisible':[('bill_count','=',0)]}">
+                                <field name="bill_count" widget="statinfo" string="Vendor Bills"/>
+                            </button>
+                            <button name="action_view_customs_duty"  class="oe_stat_button" type="object"  icon="fa-table" string="Customs Duty" attrs="{'invisible' : [('state', '!=', 'customs cleared')]}"/>
+        
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="mbl_no" required="1"/>
+                                <field name="vessel_name"/>
+                                <field name="port_date"/>
+                            </group>
+                            <group>
+                                <field name="freight_forwarder" domain="[('is_freight_forwarder','=',True)]" required="1"/>
+                                <field name="customs_agent_id" domain="[('is_customs_agents','=',True)]" required="1"/>
+                                <field name="etd" required="1"/>
+<!--                                <field name="hbl_count" invisible="1"/>-->
+                            </group>
+                        </group>
+                        <div class="oe_right">
+                            <button name='action_clear_customs' type='object' string="Clear Customs" class="oe_link" attrs="{'invisible':['|',('bill_count','!=',0),('state','!=','received port')]}"/>
+                            
+                             
+                              
+                        </div>
+                        <div class="oe_right">
+                        <button name='action_set_container_lines' context="{'default_mbl_no' :mbl_no,}" attrs="{'invisible' : [('state','not in',['ready','draft'])]}"  string="Set Container Lines" class="oe_link" type="object"  />
+                        </div>
+                        <notebook>
+                            <page string="Container Lines">
+                                <field name="mbl_no" invisible="1"/>
+                                <field name="hbl_line_ids" attrs="{'readonly' : [('state','not in',['ready','draft'])]}" context="{'default_mbl_no' :mbl_no}">
+                                   <tree editable="inline">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name='po_id' domain="[('state','in',['purchase','transit']),('is_ocean_order','!=',True),('warehouse_type', '=', 'ocean')]" required="1"  options="{'no_quick_create': True, 'no_create_edit' : True, 'no_create': True}"/>
+                                        <field name='purchase_line' domain="[('order_id', '=', po_id),('is_ocean_line','!=',True)]" required="1"  options="{'no_quick_create': True, 'no_create_edit' : True, 'no_create': True}"/>
+                                        <field name='ordered_qty'/>
+
+                                        <field name='qty_to_load' required="1"/>
+                                        <field name="container_id" required="1" options="{'no_quick_create': True}" domain="['|','|',('mhbl_id','=',False),('mhbl_id.mbl_no','=',context.get('default_mbl_no')),('mhbl_id','=',context.get('mhbl_id'))]"/>
+                                        <field name="state" readonly="1"/>
+                                        <field name="line_customs_id" invisible="1"/>
+                                        <button name="action_clear_customs" type="object" icon="fa-play"  string="Clear Customs" states="received port" context="{'reload' : True}"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Customs Duty Summary"  attrs="{'invisible' : [('state','in',['draft','ready','in ocean','received port'])]}">
+                                <group col="2">
+                                    <field name="customs_line_total" widget="monetary"/>
+                                    <field name="merch_process_fee" widget="monetary"/>
+                                    <field name="harbour_maint_fee" widget="monetary"/>
+                                    <field name="total_duty" widget="monetary"/>
+                                </group>
+                            </page>
+                        </notebook>
+                        
+                        
+<!--                        <notebook>-->
+<!--                            <page string="House Bill Of Lading">-->
+<!--                                <field name="mbl_no_copy" invisible="1"/>-->
+<!--                                <field name="hbl_ids" context="{'default_mbl_no' : mbl_no}">-->
+<!--                                    <tree>-->
+<!--                                        <field name="name"/>-->
+<!--                                        <field name="state"/>-->
+<!--                                        <button name="action_clear_customs" type="object" icon="fa-play"  string="Clear Customs" states="received port" context="{'reload' : True}"/>-->
+<!--                                    </tree>-->
+<!--                                </field>-->
+<!--                            </page>-->
+<!--                        </notebook>-->
+
+                    </sheet>
+                    <!--<div class="oe_chatter">-->
+                        <!--<field name="message_follower_ids" widget="mail_followers"/>-->
+                        <!--<field name="message_ids" widget="mail_thread"/>-->
+                    <!--</div>-->
+                </form>
+            </field>
+        </record>
+
+
+         <record id="view_house_bill_lading_tree" model="ir.ui.view">
+            <field name="name">view.house.bill.lading.tree</field>
+            <field name="model">house.bill.lading</field>
+            <field name="arch" type="xml">
+                <tree string="House Bill Of Lading" decoration-muted="state=='cancel'">
+                    <field name="lading_no"/>
+                    <field name="mhbl_id"/>
+                    <field name='state'/>
+                </tree>
+            </field>
+         </record>
+
+        <record id="master_house_bill_lading_search_view" model="ir.ui.view">
+            <field name="name">master.house.bill.lading.search.view</field>
+            <field name="model">master.house.bill.lading</field>
+            <field name="arch" type="xml">
+                <search string="Master Bill Of Lading">
+                    <field name="mbl_no"/>
+                    <field name="freight_forwarder"/>
+                    <field name="vessel_name"/>
+                    <field name="customs_agent_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Freight Forwarder" name="groupby_freight_forwarder" domain="[]" context="{'group_by': 'freight_forwarder'}"/>
+                        <filter string="Vessel Name" name="groupby_vessel_name" domain="[]" context="{'group_by': 'vessel_name'}"/>
+                        <filter string="Customs Agents" name="groupby_customs_agent_id" domain="[]" context="{'group_by': 'customs_agent_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_house_bill_of_lading" model="ir.ui.view">
+            <field name="name">view.house.bill.lading.form</field>
+            <field name="model">house.bill.lading</field>
+            <field name="arch" type="xml">
+                <form string="House Bill Of Lading">
+                    <header>
+                        <button string='Clear Customs' name='action_clear_customs' type='object' states='received port' class="oe_highlight" context="{'hbl_id': id,'containers': hbl_line_ids}"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,ready,in ocean,received port,customs cleared,received warehouse" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_customs_duty"  class="oe_stat_button" type="object"  icon="fa-table" string="Customs Duty" attrs="{'invisible' : [('state','not in',['customs cleared','received partial','received warehouse'])]}"/>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="lading_no" required="1"/>
+                                <field name="mhbl_id" invisible="context.get('invisible_mhbl', True)" required="context.get('required',False)" domain="[('state','in',['draft'])]"/>
+                            </group>
+                            <group>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="HBL Lines">
+                                <field name="mbl_no" invisible="1"/>
+                                <field name="hbl_line_ids" attrs="{'readonly' : [('state','not in',['ready','draft'])]}" context="{'default_mbl_no' :mbl_no, 'mhbl_id' : mhbl_id}">
+                                   <tree editable="inline">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name='po_id' domain="[('state','in',['purchase','transit']),('is_ocean_order','!=',True),('warehouse_type', '=', 'ocean')]" required="1"  options="{'no_quick_create': True, 'no_create_edit' : True, 'no_create': True}"/>
+                                        <field name='purchase_line' domain="[('order_id', '=', po_id),('is_ocean_line','!=',True)]" required="1"  options="{'no_quick_create': True, 'no_create_edit' : True, 'no_create': True}"/>
+                                        <field name='ordered_qty'/>
+
+                                        <field name='qty_to_load' required="1"/>
+                                        <field name="container_id" required="1" options="{'no_quick_create': True}" domain="['|','|',('mhbl_id','=',False),('mhbl_id.mbl_no','=',context.get('default_mbl_no')),('mhbl_id','=',context.get('mhbl_id'))]"/>
+                                        <field name="state" readonly="1"/>
+                                        <field name="line_customs_id" invisible="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Customs Duty Summary"  attrs="{'invisible' : [('state','in',['draft','ready','in ocean','received port'])]}">
+                                <group col="2">
+                                    <field name="customs_line_total" widget="monetary"/>
+                                    <field name="merch_process_fee" widget="monetary"/>
+                                    <field name="harbour_maint_fee" widget="monetary"/>
+                                    <field name="total_duty" widget="monetary"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="action_view_house_bill_lading">
+            <field name="name">House Bill Of Lading</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">house.bill.lading</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="context">{'invisible_mhbl':False,'required':True}</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_view_master_house_bill_lading">
+            <field name="name">Master Bill Of Lading</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">master.house.bill.lading</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="shipstation_carrier_view_tree" model="ir.ui.view">
+        <field name="name">shipstation.carrier.tree</field>
+        <field name="model">shipstation.carrier</field>
+        <field name="arch" type="xml">
+            <tree create="0">
+                <field name="name" />
+                <field name="code" />
+                <field name="nick_name" />
+                <field name="account_number" />
+                <field name="shipping_provide_id" />
+                <field name="is_primary" />
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="shipstation_carrier_view_from" model="ir.ui.view">
+        <field name="name">shipstation.carrier.form</field>
+        <field name="model">shipstation.carrier</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(shipstation_service_action)d" type="action" string="Services"
+                            class="oe_stat_button" icon="fa-ship">
+                        </button>
+                        <button name="%(shipstation_package_action)d" type="action" string="Packages"
+                            class="oe_stat_button" icon="fa-th-large">
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Carrier Name" />
+                        <h1>
+                            <field name="name" default_focus="1" required="1" />
+                        </h1>
+                        <div name="options">
+                            <div>
+                                <field name="is_primary" readonly="1" />
+                                <label for="is_primary" />
+                            </div>
+                            <div>
+                                <field name="is_requires_funded_account" readonly="1" />
+                                <label for="is_requires_funded_account" />
+                            </div>
+                        </div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field name="nick_name" />
+                            <field name="account_number" />
+                            <field name="shipping_provide_id" />
+                            <field name="shipstation_account_id" invisible="1" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="shipstation_carrier_action" model="ir.actions.act_window">
+        <field name="name">ShipStation Carriers</field>
+        <field name="res_model">shipstation.carrier</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="shipstation_carrier_view_tree" />
+        <field name="domain">[('shipstation_account_id', '=', active_id)]</field>
+        <field name="context">{}</field>
+    </record>
+
+</odoo>

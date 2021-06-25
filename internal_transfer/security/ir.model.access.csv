@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_internal_transfer_extension_stock,access_internal_transfer_extension_stock,model_internal_transfer_extension,stock.group_stock_user,1,1,1,1
+access_internal_transfer_line_stock,access_internal_transfer_line_stock,model_internal_transfer_line,stock.group_stock_user,1,1,1,1
+access_internal_transfer_exception_stock,access_internal_transfer_exception,model_internal_transfer_exception,base.group_user,1,1,1,0

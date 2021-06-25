@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="freight_forwarder_vendor_bill" model="ir.ui.view">
+            <field name="name">account.move.freight.form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <field name="ref" position="before">
+                    <field name="bill_type" attrs="{'invisible' : [('bill_type','=',False)]}"/>
+                </field>
+                <field name="invoice_date_due" position="after">
+                    <field name="mhbl_id" attrs="{'invisible' : [('mhbl_id','=',False)]}"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="hbl_bills_tree_view" model="ir.ui.view">
+            <field name="name">account.move.tree</field>
+            <field name="model">account.move</field>
+            <field name="arch" type="xml">
+                <tree decoration-info="state == 'draft'" decoration-muted="state == 'cancel'" string="Bills">
+                    <field name="partner_id" groups="base.group_user" string="Customer"/>
+                    <field name="invoice_date"/>
+<!--                    <field name="name"/>-->
+                    <field name="bill_type"/>
+                    <field name="commercial_partner_id" invisible="1"/>
+                    <field name="ref"/>
+                    <field name="name" invisible="1"/>
+                    <field name="journal_id" invisible="1"/>
+                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                    <field name="user_id" string="Responsible"/>
+                    <field name="invoice_date_due"/>
+                    <field name="mhbl_id"/>
+                    <field name="amount_total_signed" string="Total" sum="Total"/>
+                    <field name="amount_residual_signed" string="Amount Due" sum="Amount Due"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="company_currency_id" invisible="1"/>
+                    <field name="state"/>
+                    <!--<field name="type" invisible="context.get('type',True)"/>-->
+                </tree>
+            </field>
+        </record>
+
+
+        <record id="action_bills_tree_view" model="ir.actions.act_window">
+            <field name="name">Vendor Bills</field>
+            <field name="res_model">account.move</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="hbl_bills_tree_view"/>
+            <field name="domain">[('type','in',('in_invoice', 'in_refund'))]</field>
+            <field name="context">{'default_type': 'in_invoice', 'type': 'in_invoice', 'journal_type': 'purchase', 'cont_bills': True'}</field>
+
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to record a new vendor bill.
+              </p><p>
+                You can control the invoice from your vendor according to
+                what you purchased or received.
+              </p>
+            </field>
+        </record>
+
+        <record id="action_view_bill" model="ir.actions.act_window">
+            <field name="name">Vendor Bills</field>
+            <field name="res_model">account.move</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="freight_forwarder_vendor_bill"/>
+            <field name="context">{'default_type' : 'in_invoice','default_mhbl_id':active_id}</field>
+        </record>
+
+
+
+
+    </data>
+</odoo>

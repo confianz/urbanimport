@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="batch_transfer_assets" name="batch_transfer_ruvati_assets" inherit_id="web.report_assets_common">>
+             <xpath expr="." position="inside">
+                <link rel="stylesheet" href="/stock_pick_batch/static/src/css/batch_transfer.css" />
+            </xpath>
+        </template>
+    </data>
+</odoo>    
+

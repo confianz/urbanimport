@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <data>
+     <record id="view_container_wizard_form" model="ir.ui.view">
+            <field name='name'>container.wizard.form</field>
+            <field name='model'>container.wizard</field>
+          <field name="arch" type="xml">
+                <form>
+                     <group>
+                        <field name="po_ids" widget="many2many_tags"  domain="[('state','in',['purchase','transit']),('is_ocean_order','!=',True),('warehouse_type', '=', 'ocean')]" required="1"  options="{'no_quick_create': True, 'no_create_edit' : True, 'no_create': True}"/>
+          
+                    </group>
+                    <group>
+                    <field name="container_id" required="1" options="{'no_quick_create': True}" domain="['|','|',('mhbl_id','=',False),('mhbl_id.mbl_no','=',context.get('default_mbl_no'))]" />
+                    </group>
+                    <footer>
+                        <button name='set_lines'  string='Apply'  class='oe_highlight'  type='object'/>
+                       <button string="Discard" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_view_container_line_wizard" model="ir.actions.act_window">
+            <field name="name"> Set Container lines</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">container.wizard</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_id" ref="view_container_wizard_form"/>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+     </data>
+</odoo>

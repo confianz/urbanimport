@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem id="container_management_menu" name="Container Management" web_icon="container_management,static/description/icon.png"  groups="container_management.group_factory_manager,container_management.group_factory_user"/>
+
+        <menuitem id="view_container_menu" name="Containers"  parent="container_management_menu" sequence="1"/>
+        <menuitem id="view_all_container_menu" name="All Containers" parent="view_container_menu" action="action_view_all_containers" sequence="1"/>
+        <menuitem id="view_customs_cleared_containers_menu" name="Customs Cleared Containers" parent="view_container_menu" action="action_view_customs_cleared_containers" sequence="2"/>
+
+         <menuitem id="master_house_bill_lading_menu" name="Master Bill Of Lading"  parent="container_management_menu" action="action_view_master_house_bill_lading" sequence="2"/>
+
+<!--         <menuitem id="house_bill_lading_menu" name="House Bill Of Lading"  parent="container_management_menu" action="action_view_house_bill_lading" sequence="3"/>-->
+
+         <menuitem id="freight_forwarder_menu" name="Freight Forwarders"  parent="container_management_menu" action="action_view_freight_forwarder" sequence="4"/>
+
+
+         <menuitem id="customs_agents_menu" name="Customs Agents"  parent="container_management_menu" action="action_view_customs_agents" sequence="5"/>
+
+
+        <menuitem id = "product_hts_view_menu"  name = "Product HTS" parent = "container_management_menu"  action = "product_hts_menu_action" sequence="6" groups="group_factory_manager,group_factory_user"/>
+
+         <menuitem id="view_products_info_menu" name="Products"  parent="container_management_menu" action="purchase.product_normal_action_puchased" sequence="7"/>
+
+<!--        <menuitem id="menu_container_mgmnt_reports"  name="Reports"  parent = "container_management_menu" sequence="8"/>-->
+<!--        <menuitem id="menu_po_shipment_report"  name="PO Shipment"  action="action_view_po_shipment_report" parent="menu_container_mgmnt_reports" sequence="1"/>-->
+
+
+        <menuitem id="configuration_menu" name="Configuration"  parent="container_management_menu"  sequence="9"/>
+        <menuitem id = "container_config_menu"  name = "Settings"  parent = "configuration_menu"
+        action = "container_config_menu_action" sequence="1"/>
+
+
+    </data>
+</odoo>

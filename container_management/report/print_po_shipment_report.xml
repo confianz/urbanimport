@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <template id="print_po_shipment_report">
+        <t t-call="web.html_container">
+            <div class="header">
+                <div class="row">
+                    <div style="float:left;line-height:10px;font-size:8px;width:100px;">
+                        <b><span t-esc="context_timestamp(datetime.datetime.now()).strftime('%I:%M %p')"/></b>
+                        <p style="padding-top:5px;"><b><span
+                                t-esc="context_timestamp(datetime.datetime.now()).strftime('%m/%d/%Y')"/></b></p>
+                    </div>
+                    <div style="margin-left:300px;float:left;line-height:10px;font-weight:100px;width:300px">
+                        <p style="font-size:14px;text-align:center;"><b><span t-esc="company_id.name"/></b></p>
+                        <p style="font-size:16px;text-align:center;"><b><span t-esc="data.get('heading')"/></b></p>
+                        <p style="font-size:10px;text-align:center;"><b>
+                            <span t-esc="datetime.datetime.strptime(data.get('from_date'), '%Y-%m-%d').strftime('%m/%d/%Y')"/>
+                            To
+                            <span t-esc="datetime.datetime.strptime(data.get('to_date'), '%Y-%m-%d').strftime('%m/%d/%Y')"/>
+
+                        </b>
+                        </p>
+                    </div><br/><br/><br/><br/>
+                </div>
+                <div class="row">
+                    <table class="table-condensed" style="font-size:8px;cellspacing:0;cellpadding:0;" width="100%">
+                        <tr style="height:11px">
+                            <td style="border-bottom:1px solid black;" width="20%"><b>Product</b></td>
+                            <td style="border:1px solid transparent" width="2%"/>
+                            <td style="border-bottom:1px solid black;" width="5%"><b>PO Name</b></td>
+                            <td style="border:1px solid transparent" width="2%"/>
+                            <td style="border-bottom:1px solid black;" width="33%"><b>Factory Name</b></td>
+                            <td style="border:1px solid transparent" width="2%"/>
+                            <td style="border-bottom:1px solid black;text-align:center;" width="7%"><b>Total Order
+                                Qty</b></td>
+                            <td style="border:1px solid transparent" width="2%"/>
+                            <td style="border-bottom:1px solid black;text-align:center;" width="5%"><b>Shipped
+                                Qty</b></td>
+                            <td style="border:1px solid transparent" width="2%"/>
+                            <td style="border-bottom:1px solid black;text-align:center" width="9%"><b>Expected Ship
+                                Date(ETD)</b></td>
+                            <td style="border:1px solid transparent" width="2%"/>
+                            <td style="border-bottom:1px solid black;text-align:center" width="9%"><b>Actual Ship
+                                Date</b></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="page">
+                <div class="row">
+                    <div>
+                        <table class="table-condensed"
+                               style="font-size:10px;cellspacing:0;cellpadding:0;margin-top:-10px;" width="100%">
+                            <tr>
+                                <td width="20%"/>
+                                <td width="2%"/>
+                                <td width="5%"/>
+                                <td width="2%"/>
+                                <td width="33%"/>
+                                <td width="2%"/>
+                                <td width="7%"/>
+                                <td width="2%"/>
+                                <td width="5%"/>
+                                <td width="2%"/>
+                                <td width="9%"/>
+                                <td width="2%"/>
+                                <td width="9%"/>
+                            </tr>
+                            <t t-foreach="report_lines" t-as="line">
+                                <tr style="line-height:11px;">
+                                    <t t-set="qty_shipped" t-value="0"/>
+                                    <t t-set="ship_date" t-value="'Not Shipped Yet'"/>
+                                    <t t-set="order_qty" t-value="int(line.get('purchase_line').product_qty)"/>
+<!--                                    <t t-set="date_planned"-->
+<!--                                       t-value="datetime.datetime.strptime(line.get('purchase_line').date_planned, '%Y-%m-%d %H:%M:%S').strftime('%m/%d/%Y')"/>-->
+                                    <t t-set="not_shipped_ids" t-value="line.get('not_shipped_ids')"/>
+                                    <t t-if="line.get('container_lines')">
+                                        <t t-set="qty_shipped"
+                                           t-value="int(line.get('container_lines')[0].qty_to_load)"/>
+<!--                                        <t t-set="ship_date"-->
+<!--                                           t-value="line.get('container_lines')[0].etd and datetime.datetime.strptime(line.get('container_lines')[0].etd,'%Y-%m-%d').strftime('%m/%d/%Y') or ''"/>-->
+                                    </t>
+                                    <t t-elif="line.get('move_line_ids')">
+                                        <t t-set="qty_shipped"
+                                           t-value="int(line.get('move_line_ids')[0].product_uom_qty)"/>
+<!--                                        <t t-set="ship_date"-->
+<!--                                           t-value="datetime.datetime.strptime(line.get('move_line_ids')[0].date_expected,'%Y-%m-%d %H:%M:%S').strftime('%m/%d/%Y')"/>-->
+                                    </t>
+                                    <t t-elif="line.get('shipment_status') == 'not_shipped'">
+                                        <t t-set="order_qty"
+                                           t-value="int(line.get('not_shipped_ids')[0].product_uom_qty)"/>
+                                        <t t-set="qty_shipped" t-value="0"/>
+                                        <t t-set="ship_date" t-value="'Not Shipped Yet'"/>
+                                        <t t-set="not_shipped_ids" t-value="line.get('not_shipped_ids')[1:]"/>
+                                    </t>
+                                    <td><span t-esc="line.get('purchase_line').product_id.display_name"/></td>
+                                    <td/>
+                                    <td><span t-esc="line.get('purchase_line').order_id.name"/></td>
+                                    <td/>
+                                    <td><span t-esc="line.get('purchase_line').partner_id.display_name"/></td>
+                                    <td/>
+                                    <td style="text-align:right"><span t-esc="order_qty"/></td>
+                                    <td/>
+                                    <td style="text-align:right;"><span t-esc="qty_shipped"/></td>
+                                    <td/>
+                                    <td style="text-align:center"><span t-esc="date_planned"/></td>
+                                    <td/>
+                                    <td style="text-align:center"><span t-esc="ship_date"/></td>
+                                </tr>
+                                <t t-foreach="line.get('container_lines') and line.get('container_lines')[1:]"
+                                   t-as="c_line">
+                                    <tr><td/><td/><td/><td/><td/><td/><td/><td/>
+                                        <td style="text-align:right"><span t-esc="int(c_line.qty_to_load)"/></td>
+                                        <td/>
+                                        <td style="text-align:center"><span t-esc="date_planned"/></td>
+                                        <td/>
+                                        <td style="text-align:center"><span
+                                                t-esc="c_line.etd and datetime.datetime.strptime(c_line.etd, '%Y-%m-%d').strftime('%m/%d/%Y') or ''"/></td>
+                                    </tr>
+                                </t>
+                                <t t-foreach="line.get('move_line_ids') and line.get('move_line_ids')[1:]" t-as="mline">
+                                    <tr><td/><td/><td/><td/><td/><td/><td/><td/>
+                                        <td style="text-align:right"><span t-esc="int(mline.product_uom_qty)"/></td>
+                                        <td/>
+                                        <td style="text-align:center"><span t-esc="date_planned"/></td>
+                                        <td/>
+                                        <td style="text-align:center"><span
+                                                t-esc="datetime.datetime.strptime(mline.date_expected, '%Y-%m-%d %H:%M:%S').strftime('%m/%d/%Y') or ''"/></td>
+                                    </tr>
+                                </t>
+                                <t t-foreach="not_shipped_ids" t-as="nline">
+                                    <tr><td/><td/><td/><td/><td/><td/><td style="text-align:right"><span
+                                            t-esc="int(nline.product_uom_qty)"/></td><td/>
+                                        <td style="text-align:right"><span t-esc="int(0)"/></td>
+                                        <td/>
+                                        <td style="text-align:center"><span t-esc="date_planned"/></td>
+                                        <td/>
+                                        <td style="text-align:center"><span t-esc="'Not Shipped Yet'"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <div class="text-right" style="margin-top: 10px;font-size:8px;">
+                    <b>Page : <span class="page"/></b>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="ir.ui.view" id="product_template_dimensions_view">
+        <field name="name">product.template.form.dimensions</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='group_lots_and_weight']" position="inside">
+                <label for="height"/>
+                <div class="o_row" name="height">
+                    <field name="height" string="Height"/>
+                    <span>Inches</span>
+                </div>
+                <label for="width"/>
+                <div class="o_row" name="width">
+                    <field name="width" string="Width"/>
+                    <span>Inches</span>
+                </div>
+                <label for="length"/>
+                <div class="o_row" name="length">
+                    <field name="length" string="Length"/>
+                    <span>Inches</span>
+                </div>
+
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

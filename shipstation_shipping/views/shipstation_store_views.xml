@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="shipstation_store_view_tree" model="ir.ui.view">
+        <field name="name">shipstation.store.tree</field>
+        <field name="model">shipstation.store</field>
+        <field name="arch" type="xml">
+            <tree create="0">
+                <field name="name" />
+                <field name="store_id" />
+                <field name="marketplace_name" />
+                <field name="company_name" />
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="shipstation_store_view_from" model="ir.ui.view">
+        <field name="name">shipstation.store.form</field>
+        <field name="model">shipstation.store</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Store Name" />
+                        <h1>
+                            <field name="name" default_focus="1" required="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="store_id" />
+                            <field name="marketplace_name" />
+                            <field name="marketplace_id" />
+                            <field name="account_name" />
+                            <field name="company_name" />
+                            <field name="shipstation_account_id" invisible="1" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="shipstation_store_action" model="ir.actions.act_window">
+        <field name="name">ShipStation Stores</field>
+        <field name="res_model">shipstation.store</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="shipstation_store_view_tree" />
+        <field name="domain">[('shipstation_account_id', '=', active_id)]</field>
+        <field name="context">{}</field>
+    </record>
+
+</odoo>

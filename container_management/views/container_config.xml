@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- inherited form view for ProdcutHTS configuration -->
+        <record id="container_config_settings" model="ir.ui.view">
+            <field name="name">container.config.settings</field>
+            <field name="model">container.config</field>
+            <field name="arch" type="xml">
+                <form string="Configuration" class="oe_form_configuration" name="container_config_form">
+                    <header>
+                        <button string="Apply" type="object" name="execute" class="oe_highlight"/>
+                        <button string="Cancel" type="object" name="cancel" class="oe_link"/>
+                    </header>
+                    <div id="main">
+                        <group col="4" string="Account Configuration">
+                            <group>
+                                <field name= "freight_account_id"/>
+                                <field name= "customs_clearence_account_id"/>
+                            </group>
+                        </group>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+         <!-- Generic view for ProductHTS Configuration -->
+        <record id="container_config_menu_action" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="res_model">container.config</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="view_id" ref="container_config_settings"/>
+        </record>
+
+    </data>
+</odoo>

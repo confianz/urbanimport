@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="ruvati_internal_layout">
+            <t t-if="not o" t-set="o" t-value="doc"/>
+            <t t-if="not company">
+                <!-- Multicompany -->
+                <t t-if="company_id">
+                    <t t-set="company" t-value="company_id"/>
+                </t>
+                <t t-elif="o and 'company_id' in o">
+                    <t t-set="company" t-value="o.company_id.sudo()"/>
+                </t>
+                <t t-else="else">
+                    <t t-set="company" t-value="res_company"/>
+                </t>
+            </t>
+            <div class="header">
+                <div class="row" style="padding-left:60%;">
+                    <span>Picklist# </span>
+                    <span t-esc="o.reference"/>,Page
+                    <span class="page"/> of
+                    <span class="topage"/>
+                </div>
+            </div>
+            <div class="article" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+                 t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <t t-raw="0"/>
+            </div>
+        </template>
+
+        <template id="batch_picking_report">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.html_container">
+                    <t t-set="o" t-value="o.with_context({'lang':lang})"/>
+                    <t t-call="stock_pick_batch.ruvati_internal_layout">
+                        <div class="page">
+                            <t t-if="o.picking_type_id==o.picking_type_id.warehouse_id.pick_type_id">
+                                <t t-set="picking_list" t-value="get_picking_list(o)"/>
+                                <t t-foreach="picking_list" t-as="pick">
+                                    <table style="width:100%; page-break-inside:avoid;margin-top:5px;font-family: Roboto,Odoo Unicode Support Noto, sans-serif;font-size: 15px;font-weight: 500;">
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <hr style="background-color:black;height:1px;margin-bottom:0px;"/>
+                                                    <hr style="background-color:black;margin-top:2px;"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="float:left;width:20%;">
+                                                    <strong>Order Date: </strong>
+                                                </td>
+                                                <td style="float:left;width:45%;">
+                                                    <span t-esc="pick['scheduled_date']"/>
+                                                </td>
+                                                <td style="float:left;width:15%;">
+                                                    <strong>Sale ID :</strong>
+                                                </td>
+                                                <td style="float:left;width:20%;">
+                                                    <span t-esc="pick['name']"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="float:left;">
+                                                    <h4><strong>Items :</strong></h4>
+                                                </td>
+                                                 <td style="float:right;">
+                                                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s&amp;' % ('Code128', pick['name'], 390, 110)" style="float:right;width:390px;height:110px" alt="Barcode"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div style="float-left;">
+                                                        <strong>SKU : </strong><span t-esc="pick['SKU']"/>
+                                                    </div>
+                                                    <div style="float-left;">
+                                                        <strong>Pick Qty : </strong>
+                                                        <span t-esc="pick['pick_qty']"
+                                                              class="numberCircle  badge badge-pill"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Locations: </strong></td>
+                                            </tr>
+                                            <tr t-if="pick['location_qty']" style="font-size:13px;">
+                                                <t t-foreach="pick['location_qty']" t-as="loc_qty">
+                                                    <td style="float:left;">
+                                                        <span t-esc="loc_qty[0]"/>
+                                                        <span t-esc="loc_qty[1]" class="dot badge badge-pill"/>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+                            </t>
+                            <t t-if="o.picking_type_id.sequence_code in ('OUT','IN')">
+                                <t t-set="pickings" t-value="get_intern_picking_list(o)"/>
+                                <t t-foreach="pickings" t-as="pick">
+                                    <table style="width:100%; page-break-inside:avoid;margin-top:5px;font-family: Roboto,Odoo Unicode Support Noto, sans-serif;font-size: 15px;font-weight: 500;">
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <hr style="background-color:black;height:1px;margin-bottom:0px;"/>
+                                                    <hr style="background-color:black;margin-top:2px;"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="float:left;width:20%;">
+                                                    <strong>Order Date: </strong>
+                                                </td>
+                                                <td style="float:left;width:45%;">
+                                                    <span t-esc="pick.scheduled_date"/>
+                                                </td>
+                                                <td style="float:left;width:15%;">
+                                                    <strong>Sale ID :</strong>
+                                                </td>
+                                                <td style="float:left;width:20%;">
+                                                    <span t-esc="pick.name"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                 <td style="float:right;">
+                                                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s&amp;' % ('Code128', pick['name'], 390, 110)" style="float:right;width:390px;height:110px" alt="Barcode"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <hr class="new1"/>
+                                                    <h4><strong>Items:</strong></h4>
+                                                    <hr class="new1"/>
+                                                </td>
+                                            </tr>
+                                            <t t-foreach="pickings[pick]" t-as="p">
+                                                <table style="width:100%; page-break-inside:avoid;margin-top:5px;font-family: Roboto,Odoo Unicode Support Noto, sans-serif;font-size: 15px;font-weight: 500;line-height:22px;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <div style="float-left;">
+                                                                    <strong>SKU : </strong><span
+                                                                        t-esc="p['SKU']"/>
+                                                                </div>
+                                                                <div style="float-left;">
+                                                                    <strong>Pick Qty : </strong>
+                                                                    <span t-esc="p['pick_qty']"
+                                                                          class="numberCircle  badge badge-pill"/>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr style="font-size:13px;">
+                                                            <td><strong>Locations: </strong></td>
+                                                        </tr>
+                                                        <tr t-if="p['location_qty']" style="font-size:13px;">
+                                                            <t t-foreach="p['location_qty']" t-as="loc_qty">
+                                                                <td style="float:left;">
+                                                                    <span t-esc="loc_qty[0]"/>
+                                                                    <span t-esc="loc_qty[1]" class="dot badge badge-pill"/>
+                                                                </td>
+                                                            </t>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                    <p style=" page-break-after:always;"/>
+                                </t>
+                            </t>
+                            <!--                            <p style=" page-break-inside:avoid; page-break-after:auto;"/>-->
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

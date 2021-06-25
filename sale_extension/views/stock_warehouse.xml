@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Warehouse -->
+    <record id="view_warehouse_inherit" model="ir.ui.view">
+        <field name="name">Stock Warehouse Inherit MRP</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="state_ids" widget="many2many_tags" options="{'no_quick_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -159,9 +159,10 @@ class ProductTemplate(models.Model):
              ('bigcommerce_store_id', '=', store_id.id)], limit=1)
         # category_id = self.env.ref('product.product_category_all')
         if not category_id:
-            message = "Category not found!"
-            _logger.info("Category not found: {}".format(category_id))
-            return False, message
+            category_id = self.env.ref('product.product_category_all')
+            # message = "Category not found!"
+            # _logger.info("Category not found: {}".format(category_id))
+            # return False, message
         # public_category_ids = self.env['product.public.category'].sudo().search([('bigcommerce_product_category_id', 'in', record.get('categories'))])
         brand_id = self.env['bc.product.brand'].sudo().search([('bc_brand_id', '=', record.get('brand_id')), (
             'bigcommerce_store_id', '=', store_id.id)], limit=1)

@@ -174,7 +174,8 @@ class SaleOrderVts(models.Model):
         except Exception as error:
             _logger.info(">>>>> Getting an Error {}".format(error))
 
-    def bigcommerce_to_odoo_import_orders(self,warehouse_id=False, bigcommerce_store_ids=False, last_modification_date =False, today_date=False, total_pages=20):
+    # def bigcommerce_to_odoo_import_orders(self,warehouse_id=False, bigcommerce_store_ids=False, last_modification_date =False, today_date=False, total_pages=20):
+    def bigcommerce_to_odoo_import_orders(self,warehouse_id=False, bigcommerce_store_ids=False, last_modification_date =False, today_date=False, total_pages=2):
         for bigcommerce_store_id in bigcommerce_store_ids:
             req_data = False
             process_message = "Process Completed Successfully!"
@@ -195,7 +196,8 @@ class SaleOrderVts(models.Model):
                 last_modification_date = last_date + " " + last_time
                 today_date = todaydate + " " + todaytime
                 for page_no in range(1,total_pages):
-                    api_operation = "/v2/orders?max_date_created={0}&min_date_created={1}&page={2}&limit={3}".format(today_date,last_modification_date,page_no,250)
+                    # api_operation = "/v2/orders?max_date_created={0}&min_date_created={1}&page={2}&limit={3}".format(today_date,last_modification_date,page_no,250)
+                    api_operation = "/v2/orders?max_date_created={0}&min_date_created={1}&status_id={2}".format(today_date,last_modification_date,bigcommerce_store_id.bigcommerce_order_status or '11')
                     response_data = bigcommerce_store_id.send_get_request_from_odoo_to_bigcommerce(api_operation)
                     if response_data.status_code in [200, 201]:
                         response_data = response_data.json()
@@ -370,6 +372,8 @@ class SaleOrderVts(models.Model):
                                 try:
                                     product_details = "/v2{0}".format(order.get('products').get('resource'))
                                     response_data = bigcommerce_store_id.send_get_request_from_odoo_to_bigcommerce(product_details)
+                                    # print('response_dataresponse_data-----------------', response_data)
+
                                     if response_data.status_code in [200, 201, 204]:
                                         response_data = response_data.json()
                                         if response_data and order_id:

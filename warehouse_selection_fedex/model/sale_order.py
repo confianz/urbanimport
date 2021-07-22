@@ -1,9 +1,114 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
+
+    log_note = fields.Text(string='Log - Warehouse Selection')
+
+    def find_warehouse(self, cal_dicts, quantity, warehouses, log):
+        prf_warehouse = {}
+        incoming_shipment = self.upcoming_shipments(warehouses)
+        for key, value in sorted(cal_dicts.items(),
+                                 key=lambda item: item[1]):
+            # print('cal_dictscal_dictscal_dicts', key)
+            if quantity[key] > 0 and not prf_warehouse:
+                log += 'Quantity exist and selecting warehouse ' + str(key.name) + '\n'
+                warehouse = key
+                return warehouse, log
+            else:
+                log += 'quantity does not exist, checking incoming shipments\n'
+                result, log = self.check_incoming_on_warehouse(key, prf_warehouse, incoming_shipment, log)
+                # print('result', result)
+                if result['status']:
+                    warehouse = key
+                    return warehouse, log
+                else:
+                    if result[key]:
+                        prf_warehouse[key] = result[key]
+        new_prf_warehouse = dict((k, v) for k, v in prf_warehouse.items() if v)
+        # if new_prf_warehouse:
+        #     warehouse = min(new_prf_warehouse, key=new_prf_warehouse.get)
+        # else:
+        warehouse = False
+        # print('new_prf_warehouse', new_prf_warehouse)
+        return warehouse, log
+
+    def check_incoming_on_warehouse(self, selected_warehouse, prf_warehouse, incoming_shipment, log):
+        incoming_buffer_days = self.env['ir.config_parameter'].sudo().get_param('incoming_buffer_days') or 1
+        if selected_warehouse.id in incoming_shipment:
+            selected_warehouse_date = incoming_shipment[selected_warehouse.id]
+            log += 'latest incoming shipment on ' + str(selected_warehouse_date) + ' for ' + str(
+                selected_warehouse.name) + '\n'
+            log += 'Buffer days ' + str(incoming_buffer_days) + '\n'
+            today_date = datetime.now()
+            # print('incoming_buffer_days', incoming_buffer_days)
+            # print('selected_warehouse_date', selected_warehouse_date)
+            result_dt = selected_warehouse_date - relativedelta(days=int(incoming_buffer_days))
+            # print('result_dt--------', result_dt)
+            # print('prf_warehouse--------', prf_warehouse)
+            if prf_warehouse:
+                log += 'Checking next warehouse \n' + str(
+                    selected_warehouse.name)
+
+                if all(value and value > selected_warehouse_date for value in prf_warehouse.values()):
+                    log += 'Incoming date of next warehouse < stored date - Selecting next warehouse ' + str(
+                        selected_warehouse.name) +'\n'
+                    return {'status': True}, log
+                else:
+                    log += 'Checking next warehouse\n'
+                    return {'status': False, selected_warehouse: selected_warehouse_date}, log
+            else:
+                if today_date >= result_dt:
+                    log += 'Today date >= (incoming date - buffer)\n' + 'Selecting preferred Warehouse ' + str(
+                        selected_warehouse.name)
+                    return {'status': True}, log
+                else:
+                    log += 'Storing preferred Warehouse date + buffer time\n'
+                    return {'status': False, selected_warehouse: result_dt}, log
+        else:
+            log += 'No incoming shipments for this warehouse ' + str(selected_warehouse.name) + '\n'
+            return {'status': False, selected_warehouse: False}, log
+
+    def upcoming_shipments(self, warehouses):
+        product_id = self.order_line.mapped('product_id')[0]
+        ocean_moves = self.env['stock.move'].search(
+            [('picking_id.wh_transfer_done', '=', False), ('product_id', '=', product_id.id),
+             ('warehouse_id.warehouse_type', '=', 'ocean'),
+             ('state', 'not in', ['draft', 'cancel'])]).filtered(
+            lambda x: x.purchase_line_id.order_id.end_loc_id.get_warehouse().id in warehouses.ids)
+        direct_moves = self.env['stock.move'].search(
+            [('product_id', '=', product_id.id),
+             ('warehouse_id.warehouse_type', '=', 'main_warehouse'),
+             ('picking_id.picking_type_id.code', '=', 'incoming'),
+             ('picking_id.state', 'not in', ['done', 'cancel', 'draft'])]).filtered(
+            lambda x: x.warehouse_id.id in warehouses.ids)
+        # print('ocean_moves----------', ocean_moves)
+        # print('ocean_moves.mapped('')----------', ocean_moves.mapped('picking_id'))
+        # print('direct_moves----------', direct_moves)
+        # print('direct_moves.mapped('')----------', direct_moves.mapped('picking_id'))
+        upcoming_shipments = {}
+        for line in ocean_moves:
+            if line.purchase_line_id.order_id.end_loc_id.get_warehouse().id in upcoming_shipments:
+                if upcoming_shipments[
+                    line.purchase_line_id.order_id.end_loc_id.get_warehouse().id] > line.purchase_line_id.order_id.expected_final_transfer:
+                    upcoming_shipments[
+                        line.purchase_line_id.order_id.end_loc_id.get_warehouse().id] = line.purchase_line_id.order_id.expected_final_transfer
+            else:
+                upcoming_shipments[
+                    line.purchase_line_id.order_id.end_loc_id.get_warehouse().id] = line.purchase_line_id.order_id.expected_final_transfer
+
+        for line in direct_moves:
+            if line.warehouse_id.id in upcoming_shipments:
+                if upcoming_shipments[line.warehouse_id.id] > line.date:
+                    upcoming_shipments[line.warehouse_id.id] = line.date
+            else:
+                upcoming_shipments[line.warehouse_id.id] = line.date
+        # print('b-----------------', upcoming_shipments)
+        return upcoming_shipments
 
     def find_set_delivery_line(self, carrier, price):
         if self.bigcommerce_store_id or self.is_ebay_order or self.is_amazon_order:
@@ -18,7 +123,7 @@ class SaleOrder(models.Model):
                 limit=1)
             if shp_service:
                 shp_package = self.env['shipstation.package'].search(
-                    [('code', '=', 'package'),('carrier_id', '=', shp_service.carrier_id.id)],
+                    [('code', '=', 'package'), ('carrier_id', '=', shp_service.carrier_id.id)],
                     limit=1)
             self.write({
                 'carrier_id': carrier.id,
@@ -39,9 +144,22 @@ class SaleOrder(models.Model):
             })
         return True
 
+    # def pdct_dup(self):
+    #     default_code = self.env['product.product'].with_context(active_test=False).search([('default_code', '!=', False)]).mapped('default_code')
+    #     defaule_codes = list(set(list(default_code)))
+    #     for each in defaule_codes:
+    #         products = self.env['product.product'].with_context(active_test=False).search([('default_code', '=', each)])
+    #         count = 1
+    #         if len(products)>2:
+    #             print(products[0].default_code)
+    #         for pd in products:
+    #             pd.write({'default_code': pd.default_code + str(count)})
+    #             count += 1
+
     def max_qty_wh(self):
         product_id = self.order_line.mapped('product_id')[0]
-        warehouses = self.env['stock.warehouse'].search([('warehouse_type', '=', 'main_warehouse'),('company_id', '=', self.company_id.id)])
+        warehouses = self.env['stock.warehouse'].search(
+            [('warehouse_type', '=', 'main_warehouse'), ('company_id', '=', self.company_id.id)])
         quantity = {}
         for warehouse_id in warehouses:
             qty = product_id.with_context(warehouse=warehouse_id.id).qty_available
@@ -49,7 +167,8 @@ class SaleOrder(models.Model):
         return quantity
 
     def update_warehouse(self, classification):
-        warehouses = self.env['stock.warehouse'].search([('warehouse_type', '=', 'main_warehouse'),('company_id', '=', self.company_id.id)])
+        warehouses = self.env['stock.warehouse'].search(
+            [('warehouse_type', '=', 'main_warehouse'), ('company_id', '=', self.company_id.id)])
         if classification != 'BUSINESS':
             address_type = 'Residential'
             fedex_service_type = 'GROUND_HOME_DELIVERY'
@@ -73,19 +192,32 @@ class SaleOrder(models.Model):
                 return False
             price_dict[warehouse] = vals['price']
             time_dict[warehouse] = vals['time']
-        # print('price_dict',price_dict)
-        # print('time_dict',time_dict)
+        price_dict = {k: v for k, v in sorted(price_dict.items(), key=lambda item: item[1])}
+        time_dict = {k: v for k, v in sorted(time_dict.items(), key=lambda item: item[1])}
+        log = ''
+        # print('price_dict', price_dict)
+        # print('time_dict', time_dict)
         if not len(list(set(list(time_dict.values())))) == 1:
-            warehouse = min(time_dict, key=time_dict.get)
+            log += 'selecting based on delivery time\n'
+            warehouse, log = self.find_warehouse(time_dict, quantity, warehouses, log)
+            if not warehouse:
+                warehouse = min(time_dict, key=time_dict.get)
         elif not len(list(set(list(price_dict.values())))) == 1:
-            warehouse = min(price_dict, key=price_dict.get)
+            log += 'selecting based on rate\n'
+            warehouse, log = self.find_warehouse(price_dict, quantity, warehouses, log)
+            if not warehouse:
+                warehouse = min(price_dict, key=price_dict.get)
         else:
-            warehouse = max(quantity, key=quantity.get)
+            log += 'selecting based on quantity\n'
+            if not len(list(set(list(quantity.values())))) == 1 or list(set(list(quantity.values()))) != [0]:
+                log += 'selecting based on max quantity\n'
+                warehouse = max(quantity, key=quantity.get)
+            if list(set(list(quantity.values()))) == [0]:
+                warehouse, log = self.find_warehouse(price_dict, quantity, warehouses, log)
+                if not warehouse:
+                    warehouse = max(quantity, key=quantity.get)
         self.find_set_delivery_line(carrier, price_dict[warehouse])
-
-            # print('warehouse', warehouse)
         td = ''
-        # print('quantityquantityquantity', quantity)
         for wh in warehouses:
             td += '<tr><td style="color:#008080;text-align:center;padding:0 12px 0 12px;">%s</td><td style="color:#008080;text-align:center;padding:0 12px 0 12px;">%s</td><td style="color:#008080;text-align:center;padding:0 12px 0 12px;">%s</td><td style="color:#008080;text-align:center;padding:0 12px 0 12px;">%s</td></tr>' % (
                 wh.name, (time_dict[wh]).strftime("%m/%d/%Y, %H:%M"), price_dict[wh],
@@ -97,6 +229,7 @@ class SaleOrder(models.Model):
             body=('<h4>Warehouse Selection Info:- </h4><h6>Classification Type - %s</h6><table>%s%s</table>') % (
                 address_type, th, td),
             subtype_id=self.env.ref('mail.mt_note').id)
+        self.log_note = log
         return warehouse
 
     def check_avs_update_wh(self):

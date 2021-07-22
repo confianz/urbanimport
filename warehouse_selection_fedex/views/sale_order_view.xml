@@ -13,7 +13,16 @@
                             string="Set Warehouse"
                             type="object"
                             class="btn-primary"/>
+                    <!--                    <button name="pdct_dup" attrs="{'invisible': [('state','in', ('sale', 'cancel'))]}"-->
+                    <!--                            string="pdct_dup"-->
+                    <!--                            type="object"-->
+                    <!--                            class="btn-primary"/>-->
                 </xpath>
+                <notebook position="inside">
+                    <page string="Warehouse Selection log">
+                        <field name="log_note"/>
+                    </page>
+                </notebook>
             </field>
         </record>
     </data>

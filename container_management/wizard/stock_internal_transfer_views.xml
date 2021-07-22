@@ -19,7 +19,8 @@
             <form>
                 <group>
                     <group>
-                        <field name="destination_location_id" domain="[('usage', '=', 'internal')]" required="1"/>
+<!--                        <field name="destination_location_id" domain="[('usage', '=', 'internal')]" required="1"/>-->
+                        <field name="destination_location_id" domain="[('usage', '=', 'internal')]"/>
                     </group>
                     <group>
                     </group>

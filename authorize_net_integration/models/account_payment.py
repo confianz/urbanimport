@@ -8,7 +8,7 @@ import time
 class account_payment(models.Model):
     _inherit = "account.payment"
 
-    move_reconciled = fields.Boolean(compute="_get_move_reconciled", readonly=True, store =True)
+    # move_reconciled = fields.Boolean(compute="_get_move_reconciled", readonly=True, store =True)
 
 
     def action_cancel(self):
@@ -21,5 +21,4 @@ class account_payment(models.Model):
                 raise UserError(
                     _("In order to cancel this payment, refund or cancel the corresponding invoice"))
             else:
-                super(account_payment, payment).action_cancel()
-                return True
+                return super(account_payment, payment).action_cancel()

@@ -13,7 +13,7 @@ This Module provides the changes in inventory related operations.
 
         """,
     'author': 'Confianz Global',
-    'depends': ['stock', 'stock_picking_batch'],
+    'depends': ['stock', 'stock_picking_batch','delivery'],
     'demo': [],
     'data': [
         'reports/packing_slip_template.xml',

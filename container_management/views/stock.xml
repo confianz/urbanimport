@@ -24,6 +24,7 @@
                     <field name="warehouse_type" invisible="1"/>
                     <field name="bill_of_lading" invisible="1"/>
                     <field name="direct_transfer_done" invisible="1"/>
+                    <field name="wh_transfer_done"  invisible="1"/>
                     <field name="mbl_id" domain="[('state','in',['received port','customs cleared'])]" attrs="{'invisible': ['|',('picking_type_code','!=','incoming'),('warehouse_type','!=','main_warehouse')]}"/>
                     <field name="container_id" domain="[('mhbl_id','=',mbl_id),('state','in',('customs cleared','partial clearence','received partial'))]" attrs="{'invisible': ['|',('picking_type_code','!=','incoming'),('warehouse_type','!=','main_warehouse')],'required':[('mbl_id','!=',False)]}"/>
                     <field name="po_id" context="{'container_id': container_id}" attrs="{'invisible': ['|',('picking_type_code','!=','incoming'),('warehouse_type','!=','main_warehouse')],'required':[('container_id','!=',False)]}"/>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="acquirer_form_braintree" model="ir.ui.view">
+            <field name="name">acquirer.form.braintree</field>
+            <field name="model">payment.acquirer</field>
+            <field name="inherit_id" ref="payment.acquirer_form"/>
+            <field name="arch" type="xml">
+                <xpath expr='//group[@name="acquirer"]' position='inside'>
+                    <group attrs="{'invisible': [('provider', '!=', 'braintree')]}">
+                        <field name="braintree_merchand_id" attrs="{'required':[ ('provider', '=', 'braintree'), ('state', '!=', 'disabled')]}"/>
+                        <field name="braintree_public_key" attrs="{'required':[ ('provider', '=', 'braintree'), ('state', '!=', 'disabled')]}"/>
+                        <field name="braintree_private_key" attrs="{'required':[ ('provider', '=', 'braintree'), ('state', '!=', 'disabled')]}"/>
+                    </group>
+                </xpath>
+
+                <xpath expr="//group[@name='payment_followup']" position="after">
+                    <group string="Braintree Merchant Currencies" name="braintree_merchant_currency" attrs="{'invisible': [('provider', '!=', 'braintree')]}">
+                        <field name="braintree_merchant_currency_ids">
+                            <tree editable="bottom">
+                                <field name="merchant_account_id"/>
+                                <field name="currency_id"/>
+                            </tree>
+                        </field>
+                    </group>
+                </xpath>
+
+                <xpath expr="//field[@name='check_validity']" position="attributes">
+                    <attribute name="attrs">{'invisible':['|',('provider', '=', 'braintree'),('payment_flow', '!=', 's2s')]}</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

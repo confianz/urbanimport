@@ -19,6 +19,13 @@ class PurchaseOrder(models.Model):
         ('cancel', 'Cancelled')
         ], string='Status', readonly=True, index=True, copy=False, default='draft', tracking=True)
     warehouse_type = fields.Selection(related="picking_type_id.warehouse_id.warehouse_type", string="Warehouse Type")
+    end_loc_id = fields.Many2one('stock.location', string='Final Transfer to', domain=lambda self:self.get_domain())
+    expected_final_transfer = fields.Datetime(string="Expected Final Transfer")
+
+    def get_domain(self):
+        oc_loc_id = self.env['stock.warehouse'].search([('warehouse_type', '=', 'ocean')]).lot_stock_id
+        domain = [('id', 'not in', oc_loc_id.ids),('usage','=','internal')]
+        return domain
 
     @api.depends('state','order_line.is_ocean_line')
     def compute_is_ocean_order(self):
@@ -111,7 +118,7 @@ class PurchaseOrderLine(models.Model):
                 domain = [('origin', '=', line.order_id.name), ('product_id', '=', line.product_id.id)]
                 location_id = self.env['stock.warehouse'].search([('warehouse_type', '=', 'ocean')]).lot_stock_id
     #            ('warehouse_type', '=', 'ocean'), 
-                int_moves = self.env['stock.move'].search([('picking_type_id.code','=','incoming'),('picking_id.origin','=',line.order_id.name),('product_id', '=', line.product_id.id), ('location_id', '=', location_id.id), ('state', '=', 'done')]).filtered(lambda r : r.location_dest_id.location_id != location_id)
+                int_moves = self.env['stock.move'].search([('picking_type_id.code','=','incoming'),('picking_id.origin','=',line.order_id.name),('product_id', '=', line.product_id.id), ('location_id', 'in', location_id.ids), ('state', '=', 'done')]).filtered(lambda r : r.location_dest_id.location_id != location_id)
     #            for picking in line.order_id.picking_ids:
     #                qty_received_warehouse = 0
     #                moves = picking.move_lines.search(domain).filtered(

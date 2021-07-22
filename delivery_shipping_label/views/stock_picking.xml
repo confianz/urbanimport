@@ -9,8 +9,9 @@
             <field name="arch" type="xml">
                 <xpath expr="//header" position="inside">
                     <field name="picking_type_id_code" invisible="1"/>
-                    <button name="generate_shipping_label" type="object" string="Print Shipping label"
-                            attrs="{'invisible': [('picking_type_id_code', '!=', 'OUT')]}"/>
+                    <field name="carrier_type" invisible="1"/>
+                    <button name="generate_shipping_label" type="object" string="Print ZPL label"
+                            attrs="{'invisible': ['|',('picking_type_id_code', '!=', 'OUT'),('carrier_type', '!=', 'fedex')]}"/>
                 </xpath>
 <!--                <xpath expr="//field[@name='origin']" position="after">-->
 <!--                     <field name="is_back_order" attrs="{'invisible': [('picking_type_id_code', '!=', 'PICK')],'readonly':[('state','=','done')]}"/>-->

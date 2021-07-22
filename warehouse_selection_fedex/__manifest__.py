@@ -14,11 +14,12 @@ Warehouse Selection with Address Verification
     'images': [],
     'data': [
         'views/sale_order_view.xml',
+        'views/res_config_view.xml',
     ],
     'init_xml': [
     ],
 
-    'depends': ['delivery', 'delivery_fedex', 'shipstation_shipping'],
+    'depends': ['delivery', 'delivery_fedex','stock', 'shipstation_shipping'],
     'installable': True,
     'auto_install': False,
     'application': False,

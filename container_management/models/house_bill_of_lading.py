@@ -193,9 +193,11 @@ class MasterHouseBillLading(models.Model):
                               'bill_of_lading' : line.get('hbl_id',False) and line.get('hbl_id',False).name
                                })
  
-            if type(result) != bool and result.get('res_id', False):
-                res_id = self.env['stock.backorder.confirmation'].browse(result['res_id'])
-                res_id.process()
+            if type(result) != bool and result.get('res_model', False) == 'stock.backorder.confirmation':
+                # print('inside')
+                # res_id = self.env['stock.backorder.confirmation'].browse(result['res_id'])
+                self.env['stock.backorder.confirmation'].with_context(result['context']).process()
+                # res_id.process()
             purchase_id = picking_id.purchase_id
 #            invoice_id = picking_id.invoice_id
 #            if invoice_id and invoice_id.state == 'draft' :
@@ -234,7 +236,8 @@ class MasterHouseBillLading(models.Model):
 #    @api.multi
     def compute_container_count(self):
         for rec in self:
-            rec.container_count = len(rec.container_ids)
+            # rec.container_count = len(rec.container_ids)
+            rec.container_count = len(self.hbl_line_ids.mapped('container_id').ids)
 
 #    @api.multi
     def action_view_containers(self):

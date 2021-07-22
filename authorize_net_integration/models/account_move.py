@@ -208,9 +208,10 @@ class AccountMove(models.Model):
                 return
             else:
                 for each in payment:
-                    context = {}
-                    context.update({'from_invoice': True})
-                    each.with_context(context).action_cancel()
+                    if each.journal_id.is_authorizenet:
+                        context = {}
+                        context.update({'from_invoice': True})
+                        each.with_context(context).action_cancel()
                 res = super(AccountMove, self).button_draft()
                 return res
 
@@ -255,12 +256,10 @@ class AccountMove(models.Model):
                 return
             else:
                 for each in payment:
-                    # payment = self.env['account.payment'].browse(each)
-                    if payment.state == 'posted':
+                    if each.state == 'posted' and each.journal_id.is_authorizenet:
                         context = {}
                         context.update({'from_invoice': True})
-                        # print('44------',payment)
-                        payment.with_context(context).action_cancel()
+                        each.with_context(context).action_cancel()
                 invoice.write(
                     {'transaction_id': False, 'payment_profile_id': False, 'transaction_date': False, 'amount_gateway': False})
                 res = super(AccountMove, self).button_cancel()

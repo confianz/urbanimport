@@ -23,14 +23,15 @@ class AccountMove(models.Model):
     parent_invoice_id = fields.Many2one('account.move', 'Reference Invoice', copy=False)
     correction_reason = fields.Text('Reason for Correction', copy=False)
     gateway_type = fields.Selection([], string='Payment Gateway')
+    message = fields.Text('Note')
 
 
 
-    def button_cancel(self):
-        if self.state != 'draft':
-            self.button_draft()
-        return super(AccountMove, self).button_cancel()
-
+    # def button_cancel(self):
+    #     if self.state != 'draft':
+    #         self.button_draft()
+    #     return super(AccountMove, self).button_cancel()
+    #
 
 
     def resend_link(self):

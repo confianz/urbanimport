@@ -12,6 +12,7 @@ class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     picking_type_id_code = fields.Char('Picking Type Code', related='picking_type_id.sequence_code', readonly=True)
+    carrier_type = fields.Selection('Provider', related='carrier_id.delivery_type', readonly=True)
     # is_back_order = fields.Boolean(string="Back Order", compute="_compute_back_order",inverse="_inverse_back_order", store=True, copy=False, readonly=False)
 
     # @api.depends('sale_id.is_back_order')
@@ -328,8 +329,8 @@ class StockPicking(models.Model):
             label_name = "Shipping_Label.ZPL"
 
         else:
-            packing_slip = self.env.ref('delivery_shipping_label.action_report_packslip').render_qweb_pdf(self.id)[0]
-            return_label = self.env.ref('delivery_shipping_label.action_report_labelslip').render_qweb_pdf(self.id)[0]
+            packing_slip = self.env.ref('delivery_shipping_label.action_report_packslip')._render_qweb_pdf(self.id)[0]
+            return_label = self.env.ref('delivery_shipping_label.action_report_labelslip')._render_qweb_pdf(self.id)[0]
             return_labels = [return_label]
             packing_slips = [packing_slip]
             delivery_type = self.carrier_id.delivery_type

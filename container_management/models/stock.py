@@ -23,6 +23,9 @@ StockMove()
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
+    origin = fields.Char(
+        'Source Document', index=True,readonly=True,
+        help="Reference of the document")
     mbl_id = fields.Many2one('master.house.bill.lading', string="Master Bill Of Lading", readonly=True, states={'draft': [('readonly', False)]})
     container_id = fields.Many2one('container.container', string="Container", readonly=True, states={'draft': [('readonly', False)]})
     po_id = fields.Many2one('purchase.order',string="Purchase Order", readonly=True, states={'draft': [('readonly', False)]})
@@ -31,6 +34,7 @@ class StockPicking(models.Model):
     bill_of_lading = fields.Char(string="Bill of Lading")
     direct_transfer_done = fields.Boolean(string="Done Direct Transfer")
 #    is_transfer_done = fields.Boolean(stirng= "Internal Transfer Done", copy=False)
+    wh_transfer_done = fields.Boolean(string="Done WH Transfer")
 
 #Inheriting this mode because client will do direct internal transfer from oc/stock to wrehouse
 #without using 'Transfer to warehouse button' in container

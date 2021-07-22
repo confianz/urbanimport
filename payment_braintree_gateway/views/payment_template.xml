@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="braintree_payment" inherit_id="payment.confirm">
+        <xpath expr="//div[hasclass('pl-0')]" position="replace">
+            <div class="col-md-4 mt-2 pl-0">
+                <t t-if="tx.sale_order_ids and not tx.sale_order_ids[0].website_id">
+                    <a role="button" t-attf-class="btn btn-#{status} float-right"
+                       t-attf-href="/web#model=sale.order&amp;id=#{tx.sale_order_ids[0].id}">
+                        <i class="fa fa-arrow-circle-right"/>
+                        Back to Sale Order
+                    </a>
+                </t>
+                <t t-elif="tx.invoice_ids">
+                    <a role="button" t-attf-class="btn btn-#{status} float-right"
+                       t-attf-href="/web#model=account.move&amp;id=#{tx.invoice_ids[0].id}">
+                        <i class="fa fa-arrow-circle-right"/>
+                        Back to Invoice
+                    </a>
+                </t>
+                <t t-else="">
+                    <a role="button" t-attf-class="btn btn-#{status} float-right" href="/my/home">
+                        <i class="fa fa-arrow-circle-right"/>
+                        Back to My Account
+                    </a>
+                </t>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="payment_acquirer_braintree" model="payment.acquirer">
+        <field name="name">Braintree</field>
+        <field name="image_128" type="base64" file="payment_braintree_gateway/static/src/img/braintree_payment_logo.png"/>
+        <field name="provider">braintree</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="registration_view_template_id" ref="braintree_form"/>
+        <field name="display_as">Credit Card (powered by Braintree)</field>
+        <field name="module_id" ref="base.module_payment_braintree_gateway"/>
+        <field name="payment_flow">s2s</field>
+        <field name="description" type="html">
+            <p>
+                A payment gateway to accept online payments via credit cards.
+            </p>
+            <ul class="list-inline">
+                <li class="list-inline-item"><i class="fa fa-check"/>Online Payment</li>
+                <li class="list-inline-item"><i class="fa fa-check"/>Payment Status Tracking</li>
+                <li class="list-inline-item"><i class="fa fa-check"/>Subscriptions</li>
+                <li class="list-inline-item"><i class="fa fa-check"/>Save Cards</li>
+            </ul>
+        </field>
+    </record>
+</odoo>

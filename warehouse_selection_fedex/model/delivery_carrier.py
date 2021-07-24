@@ -30,7 +30,10 @@ class DeliveryCarrier(models.Model):
                           meter_number=result.fedex_meter_number,
                           use_test_server=environment)
         connection = FedexAddressValidationRequest(con)
+        logging.error("result----------------- %s" % str(result))
+        logging.error("connection----------------- %s" % str(connection))
         address1 = connection.create_wsdl_object_of_type('AddressToValidate')
+        logging.error("address----------------- %s" % str(address))
         logging.error("address1----------------- %s" % str(address1))
         logging.error("address1.Address----------------- %s" % str(address1.Address))
         address1.Address.StreetLines = [address.get("address"), address.get("address1")]

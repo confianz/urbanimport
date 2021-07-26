@@ -1,3 +1,4 @@
 zpl==0.1.8
 braintree==4.10.0
-suds==0.6
+suds-jurko==0.6
+

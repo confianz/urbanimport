@@ -137,7 +137,7 @@ class DeliveryCarrier(models.Model):
                 mode='rating',
             )
             srm.set_master_package(weight_value, 1)
-        # print('srmsrmsrmsrm',srm.RequestedShipment)
+        print('srmsrmsrmsrm',srm.RequestedShipment)
 
         request = srm.rate()
         # print('requestrequestrequestrequestrequest',request)
@@ -253,6 +253,7 @@ class DeliveryCarrier(models.Model):
                 srm.commodities(_convert_curr_iso_fdx(order_currency.name), commodity_amount, commodity_number_of_piece, commodity_weight_units, commodity_weight_value, commodity_description, commodity_country_of_manufacture, commodity_quantity, commodity_quantity_units, commodity_harmonized_code)
             srm.customs_value(_convert_curr_iso_fdx(order_currency.name), total_commodities_amount, "NON_DOCUMENTS")
             srm.duties_payment(order.warehouse_id.partner_id, superself.fedex_account_number, superself.fedex_duty_payment)
+        print('orginal------------------',srm.RequestedShipment)
 
         request = srm.rate()
         # print('requestrequestrequestrequestrequest',request)
@@ -490,45 +491,53 @@ class DeliveryCarrier(models.Model):
         return res
 
 
-class CustomFedexRequest(FedexRequest):
+# class CustomFedexRequest(FedexRequest):
 
-    def rate(self):
-        formatted_response = {'price': {}}
-        del self.ClientDetail['Region']
-        if self.hasCommodities:
-            self.RequestedShipment.CustomsClearanceDetail.Commodities = self.listCommodities
+def rate(self):
+    formatted_response = {'price': {}}
+    del self.ClientDetail['Region']
+    if self.hasCommodities:
+        self.RequestedShipment.CustomsClearanceDetail.Commodities = self.listCommodities
+    print('kldddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
+    try:
+        self.response = self.client.service.getRates(WebAuthenticationDetail=self.WebAuthenticationDetail,
+                                                     ClientDetail=self.ClientDetail,
+                                                     TransactionDetail=self.TransactionDetail,
+                                                     Version=self.VersionId,
+                                                     ReturnTransitAndCommit=True,
+                                                     RequestedShipment=self.RequestedShipment)
+        if (self.response.HighestSeverity != 'ERROR' and self.response.HighestSeverity != 'FAILURE'):
+            if not getattr(self.response, "RateReplyDetails", False):
+                raise Exception("No rating found")
+            for rating in self.response.RateReplyDetails[0].RatedShipmentDetails:
+                formatted_response['price'][rating.ShipmentRateDetail.TotalNetFedExCharge.Currency] = float(rating.ShipmentRateDetail.TotalNetFedExCharge.Amount)
+            if 'DeliveryTimestamp' in self.response.RateReplyDetails[0]:
+                formatted_response['DeliveryTimestamp'] = self.response.RateReplyDetails[0]['DeliveryTimestamp']
 
-        try:
-            self.response = self.client.service.getRates(WebAuthenticationDetail=self.WebAuthenticationDetail,
-                                                         ClientDetail=self.ClientDetail,
-                                                         TransactionDetail=self.TransactionDetail,
-                                                         Version=self.VersionId,
-                                                         ReturnTransitAndCommit=True,
-                                                         RequestedShipment=self.RequestedShipment)
-            if (self.response.HighestSeverity != 'ERROR' and self.response.HighestSeverity != 'FAILURE'):
-                if not getattr(self.response, "RateReplyDetails", False):
-                    raise Exception("No rating found")
-                for rating in self.response.RateReplyDetails[0].RatedShipmentDetails:
-                    formatted_response['price'][rating.ShipmentRateDetail.TotalNetFedExCharge.Currency] = float(rating.ShipmentRateDetail.TotalNetFedExCharge.Amount)
-                if 'DeliveryTimestamp' in self.response.RateReplyDetails[0]:
-                    formatted_response['DeliveryTimestamp'] = self.response.RateReplyDetails[0]['DeliveryTimestamp']
+            if len(self.response.RateReplyDetails[0].RatedShipmentDetails) == 1:
+                if 'CurrencyExchangeRate' in self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail and self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail['CurrencyExchangeRate']:
+                    formatted_response['price'][self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail.CurrencyExchangeRate.FromCurrency] = float(self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail.TotalNetFedExCharge.Amount) / float(self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail.CurrencyExchangeRate.Rate)
+        else:
+            errors_message = '\n'.join([("%s: %s" % (n.Code, n.Message)) for n in self.response.Notifications if (n.Severity == 'ERROR' or n.Severity == 'FAILURE')])
+            formatted_response['errors_message'] = errors_message
 
-                if len(self.response.RateReplyDetails[0].RatedShipmentDetails) == 1:
-                    if 'CurrencyExchangeRate' in self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail and self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail['CurrencyExchangeRate']:
-                        formatted_response['price'][self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail.CurrencyExchangeRate.FromCurrency] = float(self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail.TotalNetFedExCharge.Amount) / float(self.response.RateReplyDetails[0].RatedShipmentDetails[0].ShipmentRateDetail.CurrencyExchangeRate.Rate)
-            else:
-                errors_message = '\n'.join([("%s: %s" % (n.Code, n.Message)) for n in self.response.Notifications if (n.Severity == 'ERROR' or n.Severity == 'FAILURE')])
-                formatted_response['errors_message'] = errors_message
+        if any([n.Severity == 'WARNING' for n in self.response.Notifications]):
+            warnings_message = '\n'.join([("%s: %s" % (n.Code, n.Message)) for n in self.response.Notifications if n.Severity == 'WARNING'])
+            formatted_response['warnings_message'] = warnings_message
 
-            if any([n.Severity == 'WARNING' for n in self.response.Notifications]):
-                warnings_message = '\n'.join([("%s: %s" % (n.Code, n.Message)) for n in self.response.Notifications if n.Severity == 'WARNING'])
-                formatted_response['warnings_message'] = warnings_message
+    except Fault as fault:
+        formatted_response['errors_message'] = fault
+    except IOError:
+        formatted_response['errors_message'] = "Fedex Server Not Found"
+    except Exception as e:
+        formatted_response['errors_message'] = e.args[0]
 
-        except Fault as fault:
-            formatted_response['errors_message'] = fault
-        except IOError:
-            formatted_response['errors_message'] = "Fedex Server Not Found"
-        except Exception as e:
-            formatted_response['errors_message'] = e.args[0]
+    return formatted_response
 
-        return formatted_response
+def add_package(self, weight_value, package_code=False, package_height=0, package_width=0, package_length=0, sequence_number=False, mode='shipping'):
+    # TODO remove in master and change the signature of a public method
+    return self._add_package(weight_value=weight_value, package_code=package_code, package_height=int(package_height), package_width=int(package_width),
+                             package_length=int(package_length), sequence_number=sequence_number, mode=mode, po_number=False, dept_number=False)
+
+FedexRequest.rate = rate
+FedexRequest.add_package = add_package

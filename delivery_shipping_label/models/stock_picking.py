@@ -196,7 +196,7 @@ class StockPicking(models.Model):
         packing_slips = []
         # print('self.package_ids',self.package_ids)
         if not self.package_ids:
-            raise UserError("No Packages are selected in the transfer")
+            raise UserError("No Destination Packages are selected in the transfer")
         for pack in self.package_ids:
 
             #Header

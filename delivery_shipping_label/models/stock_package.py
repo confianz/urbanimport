@@ -9,9 +9,9 @@ class StockQuantPackage(models.Model):
     length = fields.Float("length")
 
 
-class ProductPackaging(models.Model):
-    _inherit = 'product.packaging'
-
-    height = fields.Float('Height')
-    width = fields.Float('Width')
-    length = fields.Float('Length')
+# class ProductPackaging(models.Model):
+#     _inherit = 'product.packaging'
+#
+#     height = fields.Float('Height')
+#     width = fields.Float('Width')
+#     length = fields.Float('Length')

@@ -534,10 +534,52 @@ def rate(self):
 
     return formatted_response
 
-def add_package(self, weight_value, package_code=False, package_height=0, package_width=0, package_length=0, sequence_number=False, mode='shipping'):
-    # TODO remove in master and change the signature of a public method
-    return self._add_package(weight_value=weight_value, package_code=package_code, package_height=int(package_height), package_width=int(package_width),
-                             package_length=int(package_length), sequence_number=sequence_number, mode=mode, po_number=False, dept_number=False)
+
+def _add_package(self, weight_value, package_code=False, package_height=0, package_width=0, package_length=0,
+                 sequence_number=False, mode='shipping', po_number=False, dept_number=False, reference=False):
+    logging.error("self.inside_neww----------------- ")
+    package = self.factory.RequestedPackageLineItem()
+    package_weight = self.factory.Weight()
+    package_weight.Value = weight_value
+    package_weight.Units = self.RequestedShipment.TotalWeight.Units
+
+    package.PhysicalPackaging = 'BOX'
+    if package_code == 'YOUR_PACKAGING':
+        package.Dimensions = self.factory.Dimensions()
+        package.Dimensions.Height = int(package_height)
+        package.Dimensions.Width = int(package_width)
+        package.Dimensions.Length = int(package_length)
+        # TODO in master, add unit in product packaging and perform unit conversion
+        package.Dimensions.Units = "IN" if self.RequestedShipment.TotalWeight.Units == 'LB' else 'CM'
+    if po_number:
+        po_reference = self.factory.CustomerReference()
+        po_reference.CustomerReferenceType = 'P_O_NUMBER'
+        po_reference.Value = po_number
+        package.CustomerReferences.append(po_reference)
+    if dept_number:
+        dept_reference = self.factory.CustomerReference()
+        dept_reference.CustomerReferenceType = 'DEPARTMENT_NUMBER'
+        dept_reference.Value = dept_number
+        package.CustomerReferences.append(dept_reference)
+    if reference:
+        customer_reference = self.factory.CustomerReference()
+        customer_reference.CustomerReferenceType = 'CUSTOMER_REFERENCE'
+        customer_reference.Value = reference
+        package.CustomerReferences.append(customer_reference)
+
+    package.Weight = package_weight
+    if mode == 'rating':
+        package.GroupPackageCount = 1
+    if sequence_number:
+        package.SequenceNumber = sequence_number
+    else:
+        self.hasOnePackage = True
+
+    if mode == 'rating':
+        self.RequestedShipment.RequestedPackageLineItems.append(package)
+    else:
+        self.RequestedShipment.RequestedPackageLineItems = package
+
 
 FedexRequest.rate = rate
-FedexRequest.add_package = add_package
+FedexRequest._add_package = _add_package

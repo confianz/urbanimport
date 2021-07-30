@@ -22,7 +22,7 @@ class MyController(http.Controller):
         m = ''
         if 'challenge_code' in kwargs:
             challenge_code = kwargs['challenge_code']
-            endpointurl = 'https://ebaydemo.confianzglobal.com/ebay/notification'
+            endpointurl = 'https://staging-urbanimport.odoo.com/ebay/notification'
             verificationToken = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
             m = hashlib.sha256((challenge_code + verificationToken + endpointurl).encode('utf-8'))
             logging.error("m----------------- %s" % str(m))
@@ -51,7 +51,7 @@ class MyController(http.Controller):
     #     m = ''
     #     if 'challenge_code' in kwargs:
     #         challenge_code = kwargs['challenge_code']
-    #         endpointurl = 'https://ebaydemo.confianzglobal.com/ebay/notification'
+    #         endpointurl = 'https://staging-urbanimport.odoo.com/ebay/notification'
     #         verificationToken = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     #         m = hashlib.sha256((challenge_code + verificationToken + endpointurl).encode('utf-8'));
     #         logging.error("m----------------- %s" % str(m))

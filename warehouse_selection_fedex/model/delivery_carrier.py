@@ -80,7 +80,7 @@ class DeliveryCarrier(models.Model):
         superself = self.sudo()
 
         # Authentication stuff
-        srm = CustomFedexRequest(self.log_xml, request_type="rating", prod_environment=self.prod_environment)
+        srm = FedexRequest(self.log_xml, request_type="rating", prod_environment=self.prod_environment)
         srm.web_authentication_detail(superself.fedex_developer_key, superself.fedex_developer_password)
         srm.client_detail(superself.fedex_account_number, superself.fedex_meter_number)
 

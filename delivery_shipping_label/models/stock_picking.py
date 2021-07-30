@@ -13,6 +13,7 @@ class StockPicking(models.Model):
 
     picking_type_id_code = fields.Char('Picking Type Code', related='picking_type_id.sequence_code', readonly=True)
     carrier_type = fields.Selection('Provider', related='carrier_id.delivery_type', readonly=True)
+
     # is_back_order = fields.Boolean(string="Back Order", compute="_compute_back_order",inverse="_inverse_back_order", store=True, copy=False, readonly=False)
 
     # @api.depends('sale_id.is_back_order')
@@ -195,28 +196,31 @@ class StockPicking(models.Model):
     def _get_fedex_zpl(self):
         packing_slips = []
         # print('self.package_ids',self.package_ids)
-        if not self.package_ids:
-            raise UserError("No Destination Packages are selected in the transfer")
+        # if not self.package_ids:
+        #     raise UserError("No Destination Packages are selected in the transfer")
         for pack in self.package_ids:
 
-            #Header
+            # Header
             l = zpl.Label(100, 60)
             l.origin(0, 3)
             l.write_text("Packing Slip", char_height=2, char_width=2, line_width=60, justification='C')
             l.endorigin()
 
             l.origin(4, 7)
-            l.write_text("Ship TO: %s" % self.partner_id.street, char_height=2, char_width=2, line_width=60, justification='L')
+            l.write_text("Ship TO: %s" % self.partner_id.street, char_height=2, char_width=2, line_width=60,
+                         justification='L')
 
             l.endorigin()
 
             l.origin(12, 9.8)
-            l.write_text("%s %s" % (self.partner_id.city, self.partner_id.zip), char_height=2, char_width=2, line_width=60, justification='L')
+            l.write_text("%s %s" % (self.partner_id.city, self.partner_id.zip), char_height=2, char_width=2,
+                         line_width=60, justification='L')
 
             l.endorigin()
 
             l.origin(12, 12)
-            l.write_text("%s (%s)"%(self.partner_id.state_id.name,self.partner_id.state_id.code), char_height=2, char_width=2, line_width=60, justification='L')
+            l.write_text("%s (%s)" % (self.partner_id.state_id.name, self.partner_id.state_id.code), char_height=2,
+                         char_width=2, line_width=60, justification='L')
 
             l.endorigin()
 
@@ -231,16 +235,18 @@ class StockPicking(models.Model):
             l.endorigin()
 
             l.origin(40, 10)
-            l.write_text("Date: %s" % datetime.date.today().strftime('%m/%d/%Y'), char_height=2, char_width=2, line_width=60, justification='L')
+            l.write_text("Date: %s" % datetime.date.today().strftime('%m/%d/%Y'), char_height=2, char_width=2,
+                         line_width=60, justification='L')
 
             l.endorigin()
 
             l.origin(40, 12)
-            l.write_text("Ship Date: %s" % self.scheduled_date.strftime('%m/%d/%Y'), char_height=2, char_width=2, line_width=60, justification='L')
+            l.write_text("Ship Date: %s" % self.scheduled_date.strftime('%m/%d/%Y'), char_height=2, char_width=2,
+                         line_width=60, justification='L')
 
             l.endorigin()
 
-            #Table header
+            # Table header
 
             l.origin(5, 20)
             l.write_text("SKU", char_height=2, char_width=2, line_width=60, justification='L')
@@ -257,9 +263,10 @@ class StockPicking(models.Model):
             l.endorigin()
             if pack.quant_ids:
                 for quant in pack.quant_ids:
-                    #Table Body
+                    # Table Body
                     l.origin(5, 25)
-                    l.write_text(quant.product_id.default_code, char_height=4, char_width=4, line_width=60, justification='L')
+                    l.write_text(quant.product_id.default_code, char_height=4, char_width=4, line_width=60,
+                                 justification='L')
 
                     l.endorigin()
 
@@ -278,7 +285,8 @@ class StockPicking(models.Model):
                         l.endorigin()
 
                         l.origin(50, 25)
-                        l.write_text(int(move_line.product_uom_qty), char_height=4, char_width=4, line_width=60, justification='L')
+                        l.write_text(int(move_line.product_uom_qty), char_height=4, char_width=4, line_width=60,
+                                     justification='L')
 
                         l.endorigin()
 
@@ -323,8 +331,10 @@ class StockPicking(models.Model):
             zpl_merged = ''
             # print('packing_slips',packing_slips)
             # print('return_labels',return_labels)
-            for label_index in range(0,len(return_labels)):
-                zpl_merged += return_labels[label_index].decode() + packing_slips[label_index]
+            for label_index in range(0, len(return_labels)):
+                zpl_merged += return_labels[label_index].decode()
+                if packing_slips:
+                    zpl_merged += packing_slips[label_index]
             merged_pdf = base64.encodestring(str.encode(zpl_merged))
             label_name = "Shipping_Label.ZPL"
 
@@ -380,7 +390,7 @@ class StockPicking(models.Model):
         merged_pdf = _buffer.getvalue()
         _buffer.close()
         return merged_pdf
-        
+
     def get_order(self):
         """to get the QC picking name for the packing slip barcode
         """
@@ -397,15 +407,15 @@ class StockPicking(models.Model):
 
 class StockPickingBatch(models.Model):
     _inherit = 'stock.picking.batch'
-        
+
     def generate_shipping_label(self):
         """Prints the Shipping label-Packing slip report for the batch.
         """
         attachments = []
         attachment_ids = []
-#        picking_ids = self.picking_ids.filtered(lambda r: r.state == 'done')
-#        if not picking_ids:
-#            raise ValidationError("Please validate the picking to print lablel")
+        #        picking_ids = self.picking_ids.filtered(lambda r: r.state == 'done')
+        #        if not picking_ids:
+        #            raise ValidationError("Please validate the picking to print lablel")
         delivery_type = False
         for picking in self.picking_ids:
             delivery_type = picking.carrier_id.delivery_type
@@ -437,7 +447,7 @@ class StockPickingBatch(models.Model):
             'target': 'new',
             'url': '/web/content/%s?download=true' % attachment_id.id,
         }
-        
+
     def merge_packing_slip(self, attachment_ids):
         """ Merges the Shipping label-Packing slip report of all pickings in the batch.
         :param attachment_ids: list of PDF datastrings to merge
@@ -465,9 +475,7 @@ class StockPickingBatch(models.Model):
         for rec in picking_ids:
             rec.action_create_label()
 
-
 # class StockMoveLine(models.Model):
 #     _inherit = 'stock.move.line'
 #
 #     package_created = fields.Boolean("Package Exists", copy=False)
-

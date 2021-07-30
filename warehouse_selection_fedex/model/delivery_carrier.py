@@ -30,12 +30,12 @@ class DeliveryCarrier(models.Model):
                           meter_number=result.fedex_meter_number,
                           use_test_server=environment)
         connection = FedexAddressValidationRequest(con)
-        logging.error("result----------------- %s" % str(result))
-        logging.error("connection----------------- %s" % str(connection))
+        # logging.error("result----------------- %s" % str(result))
+        # logging.error("connection----------------- %s" % str(connection))
         address1 = connection.create_wsdl_object_of_type('AddressToValidate')
-        logging.error("address----------------- %s" % str(address))
-        logging.error("address1----------------- %s" % str(address1))
-        logging.error("address1.Address----------------- %s" % str(address1.Address))
+        # logging.error("address----------------- %s" % str(address))
+        # logging.error("address1----------------- %s" % str(address1))
+        # logging.error("address1.Address----------------- %s" % str(address1.Address))
         address1.Address.StreetLines = [address.get("address"), address.get("address1")]
         address1.Address.City = address.get('city')
         address1.Address.StateOrProvinceCode = address.get('state_code')
@@ -253,7 +253,6 @@ class DeliveryCarrier(models.Model):
                 srm.commodities(_convert_curr_iso_fdx(order_currency.name), commodity_amount, commodity_number_of_piece, commodity_weight_units, commodity_weight_value, commodity_description, commodity_country_of_manufacture, commodity_quantity, commodity_quantity_units, commodity_harmonized_code)
             srm.customs_value(_convert_curr_iso_fdx(order_currency.name), total_commodities_amount, "NON_DOCUMENTS")
             srm.duties_payment(order.warehouse_id.partner_id, superself.fedex_account_number, superself.fedex_duty_payment)
-        print('orginal------------------',srm.RequestedShipment)
 
         request = srm.rate()
         # print('requestrequestrequestrequestrequest',request)
@@ -498,7 +497,8 @@ def rate(self):
     del self.ClientDetail['Region']
     if self.hasCommodities:
         self.RequestedShipment.CustomsClearanceDetail.Commodities = self.listCommodities
-    print('kldddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
+    logging.error("self.RequestedShipment----------------- %s" % str(self.RequestedShipment))
+
     try:
         self.response = self.client.service.getRates(WebAuthenticationDetail=self.WebAuthenticationDetail,
                                                      ClientDetail=self.ClientDetail,

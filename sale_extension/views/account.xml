@@ -12,14 +12,6 @@
                 </field>
             </field>
         </record>
-
-
-
         <menuitem id="menu_action_account_type" name="Account Type" parent = "account.account_account_menu" action="account.action_account_type_form" groups="account.group_account_manager" sequence="7"/>
-
-
-
-
-
     </data>
 </odoo>

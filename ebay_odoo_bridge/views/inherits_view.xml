@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2018-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="ebay_odoo_bridge.product_template_only_form_view">
+            <field name="name">odoo.multi.channel.sale.product.template.form</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name = 'channel']" position="after">
+                    <page string="Ebay" name="ebay">
+                        <group>
+                            <field name='ebay_product_url' attrs="{'invisible':[('ebay_product_url', '=', False)]}" class="oe_link" widget='url' readonly="1"/>
+                        </group>
+                        <group col="4">
+                            <field name='ebay_Brand'/>
+                            <field name='ebay_MPN'/>
+                        </group>
+
+                        <group>
+                            <field name='ebay_overide_default_config'/>
+                        </group>
+
+                        <group attrs="{'invisible':[('ebay_overide_default_config','!=', True)]}" col="4">
+                            <field name='ebay_condition_id' attrs="{'required':[('ebay_overide_default_config','=', True)]}"/>
+                            <field name="ebay_business_policies" widget="radio"/>
+                        </group>
+
+                        <group attrs="{'invisible':['|',('ebay_business_policies','!=','existing'),('ebay_overide_default_config','!=', True)]}" col="4">
+                            <field name="ebay_existing_payment_policy" attrs="{'required':[('ebay_business_policies','=','existing')]}" options="{'no_create_edit' : True}"/>
+                            <field name="ebay_existing_shipping_policy" attrs="{'required':[('ebay_business_policies','=','existing')]}" options="{'no_create_edit' : True}"/>
+                            <field name="ebay_existing_return_policy" attrs="{'required':[('ebay_business_policies','=','existing')]}" options="{'no_create_edit' : True}"/>
+                        </group>
+
+                        <group string="Return Policy" col="4" name="return_info" attrs="{'invisible':['|',('ebay_business_policies','!=', 'custom'),('ebay_overide_default_config','!=', True)]}">
+                            <field name="ebay_return_accepted_option" attrs="{'required':[('ebay_business_policies','=', 'custom')]}"/>
+                            <field name="ebay_return_within_option" attrs="{'required':[('ebay_business_policies','=', 'custom')]}"/>
+                            <field name="ebay_shipping_cost_paid_by" attrs="{'required':[('ebay_business_policies','=', 'custom')]}"/>
+                            <field name="ebay_return_description" attrs="{'required':[('ebay_business_policies','=', 'custom')]}"/>
+                        </group>
+
+                        <group string="Shipping Policy" attrs="{'invisible':['|',('ebay_business_policies','!=', 'custom'),('ebay_overide_default_config','!=', True)]}" col="4">
+                            <field name="ebay_shipping_service" options="{'no_create_edit' : True}"/>
+                            <field name="ebay_shipping_cost" attrs="{'required':[('ebay_shipping_service','!=', False)],'invisible':[('ebay_shipping_service','=', False)]}"/>
+                            <field name="ebay_shipping_additional_cost" attrs="{'required':[('ebay_shipping_service','!=', False)],'invisible':[('ebay_shipping_service','=', False)]}"/>
+                            <field name="ebay_shipping_priority" attrs="{'required':[('ebay_shipping_service','!=', False)],'invisible':[('ebay_shipping_service','=', False)]}"/>
+                            <field name="ebay_dispatch_time_max" attrs="{'required':[('ebay_shipping_service','!=', False)],'invisible':[('ebay_shipping_service','=', False)]}"/>
+                        </group>
+
+                        <group col="4" string="Payment Policy" attrs="{'invisible':['|',('ebay_business_policies','!=', 'custom'),('ebay_overide_default_config','!=', True)]}">
+                            <field name="ebay_payment_method" options="{'no_create_edit' : True}"/>
+                            <field name="paypal_email_address" attrs="{'required':[('ebay_payment_method_related','=','PayPal')], 'invisible':[('ebay_payment_method_related','!=','PayPal')]}"/>
+                            <field name="ebay_payment_method_related" invisible="1"/>
+                        </group>
+
+                        <group string="Ebay Product Specifics">
+                            <field name='use_ebay_specifics'/>
+                        </group>
+                        <group col="4">
+                            <field name='ebay_max_names'/>
+                            <field name='ebay_max_values_per_name'/>
+                        </group>
+                        <group  attrs="{'invisible':[('use_ebay_specifics', '=', False)]}" >
+                            <span>For adding (using) the eBay product specefics  <button name="import_ebay_product_category_specifics" string="Click here" type="object" class="oe_highlight oe_link" help="Click here to import the category specifics for this product."/>
+                            </span>
+                            <newline/>
+                            <field name='ebay_specifics' nolabel="1"/>
+                            <newline/>
+                            <p >Note:-> You can add the eBay product specificsto on this products. Click on the link above to import the eBay product specifics and then you can modify them according to your choice. Change only the Value but not the Name of the specifics and keep them in the same format. You can select the Value from the below given list of values.</p>
+                        </group>
+
+                        <group string="Select value from the given list of values" attrs="{'invisible':[('use_ebay_specifics', '=', False)]}" >
+                            <field name="show_ebay_specifics_values" nolabel="1" widget="html"/>
+                        </group>
+
+                        <group string="Ebay HTML Description">
+                            <field name='ebay_description_html' widget="html" nolabel="1"/>
+                        </group>
+
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

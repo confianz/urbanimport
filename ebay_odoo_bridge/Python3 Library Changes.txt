@@ -1,0 +1,21 @@
+Line 152 change basestring to str in connection.py
+
+    if isinstance(requestData, str):  # pylint: disable-msg=E0602
+   
+
+Add encode usign _unescape in utils.py at line 100
+
+def _unescape(text):
+    ##
+    # Replaces all encoded characters by urlib with plain utf8 string.
+    #
+    # @param text source text.
+    # @return The plain text.
+
+    try:
+        return urllib.parse(text.encode('utf8'))
+    except Exception as e:
+        return text
+
+At line 100 add this
+return _unescape(value)

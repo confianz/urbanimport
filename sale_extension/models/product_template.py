@@ -8,3 +8,14 @@ class ProductTemplate(models.Model):
     real_name = fields.Char('Real Name')
 
 
+
+# class ProductProduct(models.Model):
+#     _inherit = "product.product"
+#
+#
+#     default_code = fields.Char('Internal Reference', index=True)
+#
+#     _sql_constraints = [
+#         ('default_code_uniq', 'unique(default_code)', "A SKU can only be assigned to one product !"),
+#     ]
+

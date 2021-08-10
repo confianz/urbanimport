@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2015-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- "License URL : <https://store.webkul.com/license.html/>" -->
+<odoo>
+	<data>
+		<record id="ebay_odoo_bridge.import_wizard_form" model="ir.ui.view">
+			<field name="name">import.operation.form</field>
+			<field name="model">import.operation</field>
+			<field name="inherit_id" ref="odoo_multi_channel_sale.import_wizard_form"/>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<xpath expr="//group[@name='filters']" postion="inside">
+					<group attrs="{'invisible': ['|',('channel','!=','ebay'),('object','in',['delivery.carrier', 'business.policies.mappings'])]}">
+						<div class="o_td_label">
+							<label string="Filter Type" for="ebay_filter_type" />
+						</div>
+						<field
+							name  ="ebay_filter_type"
+							widget="radio"
+							nolabel="1"
+						/>
+					</group>
+
+					<group
+						attrs="
+							{
+								'invisible': ['|',('channel','!=','ebay'),'|',('ebay_filter_type','!=','id'),('object','in',['delivery.carrier', 'business.policies.mappings'])],
+								'required' : [('ebay_filter_type','=','id'),('object', '!=', 'product.category'),('channel','=','ebay')],
+							}
+						"
+					>
+						<div class="o_td_label">
+							<label string="Object ID" for="ebay_object_id" />
+						</div>
+						<field name="ebay_object_id" nolabel="1" />
+					</group>
+
+					<group attrs="{'invisible':['|',('channel','!=','ebay'),'|',('ebay_filter_type','!=','date_range'),('object','!=','sale.order')]}">
+						<div class="o_td_label">
+							<label string="Order Status" for="ebay_order_status" />
+						</div>
+						<field name="ebay_order_status" nolabel="1" />
+					</group>
+
+					<group attrs="{'invisible':['|',('channel','!=','ebay'),('object','!=','product.category')]}">
+						<div class="o_td_label">
+							<label string="Limit" for="ebay_level_limit" />
+						</div>
+						<field name="ebay_level_limit" nolabel="1" />
+					</group>
+
+					<group attrs="{'invisible':['|',('channel','!=','ebay'),'|',('ebay_filter_type','!=','date_range'), ('object','in',['delivery.carrier', 'business.policies.mappings'])], 'required': [('object','in',['sale.order','product.template']),('channel','=','ebay')]}">
+						<div class="o_td_label">
+							<label string="Updated From" for="ebay_updated_at_min" />
+						</div>
+						<field name="ebay_updated_at_min" nolabel="1" />
+					</group>
+
+					<group attrs="{'invisible':['|',('channel','!=','ebay'),'|',('ebay_filter_type','!=','date_range'), ('object','in',['delivery.carrier', 'business.policies.mappings'])], 'required': [('object','in',['sale.order','product.template']),('channel','=','ebay')]}">
+						<div class="o_td_label">
+							<label string="Updated Till" for="ebay_updated_at_max" />
+						</div>
+						<field name="ebay_updated_at_max" nolabel="1" />
+					</group>
+
+					<!-- <group attrs="{'invisible':['|',('channel','!=','ebay'),('ebay_filter_type','!=','since_id')]}">
+						<field name="ebay_since_id"/>
+					</group> -->
+
+				</xpath>
+				<field name="object" position="after">
+					<field name="ebay_category" attrs="{'invisible':['|',('channel','!=','ebay'), ('object','not in',['product.category', 'product.template'])]}"/>
+				</field>
+				<xpath expr="//form" postion="inside">
+					<p
+					attrs="
+						{
+							'invisible': ['|',('channel','!=','ebay'),('ebay_filter_type','!=','all'),]
+						}
+					">
+						Note: Will import objects of 'All' the time period.
+					</p>
+					<p attrs="
+						{
+							'invisible': ['|',('channel','!=','ebay'),'|',('ebay_filter_type','!=','id'),'|',('object','=','product.template'),('object','in',['delivery.carrier', 'business.policies.mappings'])]
+						}
+					">
+						Note: Will import object of particular 'By ID' entered.
+					</p>
+					<p attrs="
+						{
+							'invisible': ['|',('channel','!=','ebay'),'|',('ebay_filter_type','!=','date_range'),('object','in',['delivery.carrier', 'business.policies.mappings'])]
+						}
+					">
+						Note: Will import objects that are updated during the after 'Updated From' and before 'Updated Till'.
+					</p>
+					<p class="oe_grey" attrs="
+						{
+							'invisible': ['|',('channel','!=','ebay'),'|',('ebay_filter_type','!=','date_range'),('object','in',['delivery.carrier', 'business.policies.mappings'])]
+						}
+					">
+						<b>NOTE:</b>
+						<span>The maximum time range allowed in a request is 120 days.</span>
+					</p>
+					<p attrs="
+						{
+							'invisible': ['|',('channel','!=','ebay'),'|',('ebay_filter_type','!=','since_id'),('object','in',['delivery.carrier', 'business.policies.mappings'])]
+						}
+					">
+						Note: Will import number (entered in 'Limit') of objects that after 'From ID' entered.
+					</p>
+				</xpath>
+			</field>
+		</record>
+	</data>
+</odoo>

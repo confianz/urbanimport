@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2018-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data>
+        <record id="inherited_category_form_view" model="ir.ui.view">
+             <field name="name">channel.category.mappings.form</field>
+            <field name="model">channel.category.mappings</field>
+            <field name="inherit_id" ref="odoo_multi_channel_sale.channel_category_mapping_form"/>
+            <field name="arch" type="xml">
+               <xpath expr="//sheet" position="inside">
+                    <div attrs="{'invisible':['|',('ecom_store', '!=','ebay'), ('leaf_category','!=', True)]}">
+                        <label for="ebay_category_specifics" string="Name Value Specifics for this category"/>
+                    <field name="ebay_category_specifics" nolabel="1"/>
+                    <p> On clicking the link below the Item specifis for this category will be displayed.<br/>
+                        The ItemSpecifics are required while exporting the products from Odoo to ebay and these are category specific.<br/>
+                        The ItemSpecifics with default values will be added in the above field and you can change the values in the list on your choice.<br/>
+                        These ItemSpecifics will be used while exporting the product from Odoo to eBay.
+                    </p>
+                    <separator string='Select value from the given list of values' />
+                    <field name="ebay_category_specifics_values" nolabel="1" widget="html"/>
+                    <group col="4">
+                        <field name='ebay_max_names'/>
+                        <field name='ebay_max_values_per_name'/>
+                        </group>
+                    <group>
+                        <span>Click on the link to see the ebay specifics of this category<button name="getCategorySpecifics" string="Click here" type="object" class="oe_highlight oe_link" /></span>
+                    </group>
+                </div>
+               </xpath>
+            </field>
+        </record>
+        <record id="ir_server_action_leaf_category_specifics" model="ir.actions.server">
+			<field name="name">Get Ebay Category Specifics</field>
+			<field name="type">ir.actions.server</field>
+			<field name="model_id" ref="odoo_multi_channel_sale.model_channel_category_mappings"/>
+			<field name="state">code</field>
+			<field name="code">if records:action=records.getCategorySpecifics()</field>
+			<field name="binding_model_id" ref="odoo_multi_channel_sale.model_channel_category_mappings"/>
+		</record>
+    </data>
+</odoo>

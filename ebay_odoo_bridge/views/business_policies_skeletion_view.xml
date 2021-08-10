@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2018-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+	<data>
+		<record id="busines_policies_mapping_tree_search" model="ir.ui.view">
+			<field name="name">business.policies.mapping.search</field>
+			<field name="model">business.policies.mappings</field>
+			<field name="arch" type="xml">
+			<search string="Feed">
+				<field name="name"/>
+				<field name="policy_id"/>
+				<group expand="0" string="Group By...">
+					<filter string="Type" name="filter_by_channel_id" context="{'group_by':'channel_id'}"/>
+					<filter string="Type" name="filter_by_policy_type" context="{'group_by':'policy_type'}"/>
+				   
+					<group string='Filters'>
+						 <filter icon="terp-check" name="channel_id" string="Policy Type"
+							domain="[]"  context="{'group_by':'channel_id'}"/>
+						<filter icon="terp-check" name="policy_type" string="Policy Type"
+							domain="[]"  context="{'group_by':'policy_type'}"/>
+						   
+					</group>
+				 </group>
+			</search>
+			</field>
+		</record>
+		<record id="busines_policies_mapping_tree_view" model="ir.ui.view">
+			<field name="name">business.policies.mappings.tree</field>
+			<field name="model">business.policies.mappings</field>
+			<field name="type">tree</field>
+			<field name="arch" type="xml">
+				<tree string="Ebay Business Policies">
+					<field name="policy_type"/>	
+					<field name="name"/>
+					<field name="policy_id"/>
+					<field name="description"/>
+					<field name="channel_id"/>
+				</tree>				
+			</field>
+		</record>
+		<record id="action_busines_policies_mapping" model="ir.actions.act_window">
+			<field name="name">Ebay Business Policies</field>
+			<field name="res_model">business.policies.mappings</field>
+			<field name="view_mode">tree</field>
+			<field name="view_id" ref="busines_policies_mapping_tree_view"/>
+			<field name="context">{"search_default_filter_by_channel_id":1, "search_default_filter_by_policy_type":1}
+			</field>
+		</record>
+	</data>
+</odoo>

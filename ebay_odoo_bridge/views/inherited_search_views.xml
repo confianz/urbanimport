@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2018-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data>
+        <record id="inherited_category_feed_view_search" model="ir.ui.view">
+            <field name="name">category.feed</field>
+            <field name="model">category.feed</field>
+            <field name="inherit_id" ref="odoo_multi_channel_sale.category_feed_view_search"/>
+            <field name="arch" type="xml">
+                <filter name="filter_by_state" position="after">
+                    <filter string="Ebay" name="filter_by_ebay" domain="[('channel', '=', 'ebay')]"/>
+                </filter>
+            </field>
+        </record>
+
+        <record id="inherited_shipping_feed_view_search" model="ir.ui.view">
+            <field name="name">shipping.feed</field>
+            <field name="model">shipping.feed</field>
+            <field name="inherit_id" ref="odoo_multi_channel_sale.shipping_feed_view_search"/>
+            <field name="arch" type="xml">
+                <filter name="filter_by_state" position="after">
+                    <filter string="Ebay" name="filter_by_ebay" domain="[('channel', '=', 'ebay')]"/>
+                </filter>
+            </field>
+        </record>
+        <record id="inherited_order_feed_view_search" model="ir.ui.view">
+            <field name="name">order.feed</field>
+            <field name="model">order.feed</field>
+            <field name="inherit_id" ref="odoo_multi_channel_sale.order_feed_view_search"/>
+            <field name="arch" type="xml">
+                <filter name="filter_by_state" position="after">
+                    <filter string="Ebay" name="filter_by_ebay" domain="[('channel', '=', 'ebay')]"/>
+                </filter>
+            </field>
+        </record>
+        <record id="inherited_partner_feed_view_search" model="ir.ui.view">
+           <field name="name">partner.feed</field>
+            <field name="model">partner.feed</field>
+            <field name="inherit_id" ref="odoo_multi_channel_sale.partner_feed_view_search"/>
+            <field name="arch" type="xml">
+                <filter name="filter_by_state" position="after">
+                    <filter string="Ebay" name="filter_by_ebay" domain="[('channel', '=', 'ebay')]"/>
+                </filter>
+            </field>
+        </record>
+        <record id="inherited_product_feed_view_search" model="ir.ui.view">
+            <field name="name">product.feed</field>
+            <field name="model">product.feed</field>
+            <field name="inherit_id" ref="odoo_multi_channel_sale.product_feed_view_search"/>
+            <field name="arch" type="xml">
+                <filter name="filter_by_state" position="after">
+                    <filter string="Ebay" name="filter_by_ebay" domain="[('channel', '=', 'ebay')]"/>
+                </filter>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -169,6 +169,8 @@ class SaleOrder(models.Model):
     def update_warehouse(self, classification):
         warehouses = self.env['stock.warehouse'].search(
             [('warehouse_type', '=', 'main_warehouse'), ('company_id', '=', self.company_id.id)])
+        if not warehouses:
+            raise UserError(_('Please Define A Main Warehouse '))
         if classification != 'BUSINESS':
             address_type = 'Residential'
             fedex_service_type = 'GROUND_HOME_DELIVERY'
@@ -258,7 +260,7 @@ class SaleOrder(models.Model):
         if len(order.order_line.filtered(lambda o_line: o_line.product_id.type != 'service').ids) == 1 and \
                 order.order_line.mapped('product_uom_qty')[0] == 1:
             if order.partner_shipping_id.country_id != order.company_id.country_id:
-                quantity = self.max_qty_wh()
+                quantity = order.max_qty_wh()
                 warehouse = max(quantity, key=quantity.get)
                 if warehouse:
                     order.warehouse_id = warehouse.id

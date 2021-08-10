@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- Copyright (c) 2018-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+    <data>
+        <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Ebay global id values ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+        <record id="ebay_global_id_values_search_view" model="ir.ui.view">
+            <field name="name">ebay.global.id.values.search</field>
+            <field name="model">ebay.global.id.values</field>
+            <field name="arch" type="xml">
+            <search string="Ebay Global Ids">
+            <field name="site_name" string="Ebay Global Id" filter_domain="['|','|',('site_name','ilike',self),('ebay_site_id','ilike',self),('global_id','ilike',self)]"/>
+            </search>
+            </field>
+        </record>
+
+        <record id="ebay_global_id_values_form" model="ir.ui.view">
+            <field name="name">ebay_global_id_values.form</field>
+            <field name="model">ebay.global.id.values</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="eBay Global IDS">
+                    <sheet>
+                        <group name="ebay_global_ids">
+                            <field name="site_name"/>
+                            <field name="global_id" />
+                            <field name="ebay_site_id"/>
+                            <field name="territory"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="ebay_global_id_values_tree" model="ir.ui.view">
+            <field name="name">ebay_global_id_values.tree</field>
+            <field name="model">ebay.global.id.values</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="eBay Global IDS">
+                    <field name="site_name"/>
+                    <field name="global_id"/>
+                    <field name="ebay_site_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_id_ebay_global_id_values" model="ir.actions.act_window">
+            <field name="name">eBay Global IDS</field>
+            <field name="res_model">ebay.global.id.values</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="ebay_global_id_values_tree"/>
+        </record>
+
+        <!-- #######################    Ebay configuration ################################################## -->
+        <record id="inherited_form_multi_channel_sale" model="ir.ui.view">
+            <field name="name">multi.channel.sale.inherited</field>
+            <field name="model">multi.channel.sale</field>
+            <field name="inherit_id" ref="odoo_multi_channel_sale.multi_channel_view_form" />
+            <field name="arch" type="xml">
+
+                <group name="credentials" position='inside'>
+                    <group name="logininfo" attrs="{'invisible':[('channel','!=', 'ebay')]}" col="2" colspan="2">
+                        <field name="ebay_sellerid"  attrs="{'readonly':[('state','=','validate')],'required':[('channel','=','ebay')],'invisible':[('channel','!=','ebay')]}"/>
+                        <field name="ebay_appid"  attrs="{'readonly':[('state','=','validate')],'required':[('channel','=','ebay')],'invisible':[('channel','!=','ebay')],'invisible':[('channel','!=','ebay')]}"/>
+                        <field name="ebay_devid"  attrs="{'readonly':[('state','=','validate')],'required':[('channel','=','ebay')],'invisible':[('channel','!=','ebay')]}"/>
+                        <field name="ebay_certid"   attrs="{'readonly':[('state','=','validate')],'required':[('channel','=','ebay')],'invisible':[('channel','!=','ebay')]}"/>
+                        <field name="ebay_token"   placeholder="paste user token here..." attrs="{'readonly':[('state','=','validate')],'required':[('channel','=','ebay')],'invisible':[('channel','!=','ebay')]}"/>
+                        <field name="ebay_global_value_id" attrs="{'readonly':[('state','=','validate')],'required':[('channel','=','ebay')],'invisible':[('channel','!=','ebay')]}"/>
+                    </group>
+                </group>
+
+                <page name="configuration" position='after'>
+                    <page string="Other Configuration" name="other_configuration"   attrs="{'invisible':['|',('channel','!=','ebay'),('state','!=','validate')]}">
+                        <center>
+                            <separator string="Product Export Configuration"/>
+                        </center>
+                        <separator string="Business Policies"/>
+                        <p>For exporting the products you have to decide ebay business policies(like payment, shipping and return). In order to use existing policies you must have to import all business policies first then you can use them in configuration or you can create new policies during product export on ebay.</p>
+                        <group col="2">
+                            <field name="ebay_business_policies" widget="radio"/>
+                        </group>
+
+                        <group  attrs="{'invisible':[('ebay_business_policies','!=','existing')]}">
+                            <field name="ebay_existing_payment_policy" attrs="{'required':[('ebay_business_policies','=','existing')]}" options="{'no_create_edit' : True}"/>
+                            <field name="ebay_existing_shipping_policy" attrs="{'required':[('ebay_business_policies','=','existing')]}" options="{'no_create_edit' : True}"/>
+                            <field name="ebay_existing_return_policy" attrs="{'required':[('ebay_business_policies','=','existing')]}" options="{'no_create_edit' : True}"/>
+                        </group>
+
+                        <group col="4" string="Payment Policy" attrs="{'invisible':[('ebay_business_policies','!=', 'custom')]}">
+                            <field name="ebay_payment_method" options="{'no_create_edit' : True}"/>
+                            <field name="paypal_email_address" attrs="{'required':[('ebay_payment_method_related','=','PayPal')], 'invisible':[('ebay_payment_method_related','!=','PayPal')]}"/>
+                            <field name="ebay_payment_method_related" invisible="1"/>
+                        </group>
+
+                        <group string="Shipping Policy" attrs="{'invisible':[('ebay_business_policies','!=', 'custom')]}">
+                            <field name="ebay_shipping_service" options="{'no_create_edit' : True}"/>
+                        </group>
+
+                        <group col="4" attrs="{'invisible':['|',('ebay_shipping_service','=', False),('ebay_business_policies','!=', 'custom')]}">
+                            <field name="ebay_shipping_cost" attrs="{'required':[('ebay_shipping_service','!=', False)]}"/>
+                            <field name="ebay_shipping_additional_cost" attrs="{'required':[('ebay_shipping_service','!=', False)]}"/>
+                            <field name="ebay_shipping_priority" attrs="{'required':[('ebay_shipping_service','!=', False)]}"/>
+                            <field name="ebay_dispatch_time_max" attrs="{'required':[('ebay_shipping_service','!=', False)]}"/>
+                        </group>
+
+                        <group string="Return Policy" col="4" name="return_info" attrs="{'invisible':[('ebay_business_policies','!=', 'custom')]}">
+                            <field name="ebay_return_accepted_option" attrs="{'required':[('ebay_business_policies','=', 'custom')]}"/>
+                            <field name="ebay_return_within_option" attrs="{'required':[('ebay_business_policies','=', 'custom')]}"/>
+                            <field name="ebay_shipping_cost_paid_by" attrs="{'required':[('ebay_business_policies','=', 'custom')]}"/>
+                        </group>
+
+                        <group attrs="{'invisible':[('ebay_business_policies','!=', 'custom')]}">
+                            <field name="ebay_return_description" attrs="{'required':[('ebay_business_policies','=', 'custom')]}"/>
+                        </group>
+
+                        <group col="4" string="Other">
+                           <field name="ebay_listing_duration" attrs="{'required':[('channel','=', 'ebay')]}"/>
+                            <field name="ebay_condition_id" attrs="{'required':[('channel','=', 'ebay')]}"/>
+                            <field name="ebay_export_variant_images"/>
+                            <field name="ebay_use_html_description"/>
+                            <field name="ebay_display_product_url"/>
+                            <field name="ebay_default_export_quantity"/>
+                            <field name="ebay_default_category"/>
+                            <field name="ebay_barcode_unavailable_text"/>
+                        </group>
+                    </page>
+                </page>
+            </field>
+        </record>
+        <menuitem id="menu_id_ebay" name="Ebay" parent="odoo_multi_channel_sale.menu_id_multi_channel_configuration" sequence="2"/>
+        <menuitem id="menu_id_ebay_global_id_values" name="eBay Global Ids" parent="menu_id_ebay" action="action_id_ebay_global_id_values" sequence="2"/>
+        <menuitem id="menu_id_ebay_business_policies" name="Business Policies " parent="menu_id_ebay" action="action_busines_policies_mapping" sequence="3"/>
+    </data>
+</odoo>

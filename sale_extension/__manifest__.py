@@ -37,7 +37,7 @@
 
     ],
 
-    'depends': ['base', 'sale', 'sale_stock', 'stock', 'website_sale'],
+    'depends': ['base', 'sale', 'sale_stock', 'stock', 'website_sale', 'portal'],
     'installable': True,
     'auto_install': False,
     'application': False,

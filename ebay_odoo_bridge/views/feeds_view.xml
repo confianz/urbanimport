@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2019-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data>
+        <record id="product_feed_view_form_inherited" model="ir.ui.view">
+            <field name="name">product.feed.form</field>
+            <field name="model">product.feed</field>
+            <field name="inherit_id" ref="odoo_multi_channel_sale.product_feed_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='extra']//group" position="after">
+                    <group string="Ebay html Description" attrs= "{'invisible':[('channel','!=', 'ebay')]}">
+                        <field name="ebay_description_html" widget="html" nolabel="1"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>    

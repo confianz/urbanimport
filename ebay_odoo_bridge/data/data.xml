@@ -1,0 +1,176 @@
+<odoo>
+	<!-- Copyright (c) 2015-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+	<!-- See LICENSE file for full copyright and licensing details. -->
+	<!-- "License URL : <https://store.webkul.com/license.html/>" -->
+	<data noupdate="1">
+		<record id="1" model="ebay.global.id.values">
+			<field name="site_name">eBay Austria</field>
+			<field name="global_id">EBAY-AT</field>
+			<field name="ebay_site_id">16</field>
+		</record>
+
+		<record id="2" model="ebay.global.id.values">
+			<field name="site_name">eBay Australia</field>
+			<field name="global_id">EBAY-AU</field>
+			<field name="ebay_site_id">15</field>
+		</record>
+
+		<record id="3" model="ebay.global.id.values">
+			<field name="site_name">eBay Switzerland</field>
+			<field name="global_id">EBAY-CH</field>
+			<field name="ebay_site_id">193</field>
+		</record>
+
+		<record id="4" model="ebay.global.id.values">
+			<field name="site_name">eBay Germany</field>
+			<field name="global_id">EBAY-DE</field>
+			<field name="ebay_site_id">77</field>
+		</record>
+
+		<record id="5" model="ebay.global.id.values">
+			<field name="site_name">eBay Canada (English)</field>
+			<field name="global_id">EBAY-ENCA</field>
+			<field name="ebay_site_id">2</field>
+		</record>
+
+		<record id="6" model="ebay.global.id.values">
+			<field name="site_name">eBay Spain</field>
+			<field name="global_id">EBAY-ES</field>
+			<field name="ebay_site_id">186</field>
+		</record>
+
+		<record id="7" model="ebay.global.id.values">
+			<field name="site_name">eBay France</field>
+			<field name="global_id">EBAY-FR</field>
+			<field name="ebay_site_id">71</field>
+		</record>
+
+		<record id="8" model="ebay.global.id.values">
+			<field name="site_name">eBay Belgium (French)</field>
+			<field name="global_id">EBAY-FRBE</field>
+			<field name="ebay_site_id">23</field>
+		</record>
+
+		<record id="9" model="ebay.global.id.values">
+			<field name="site_name">eBay Canada (French)</field>
+			<field name="global_id">EBAY-FRCA</field>
+			<field name="ebay_site_id">210</field>
+		</record>
+
+		<record id="10" model="ebay.global.id.values">
+			<field name="site_name">eBay UK</field>
+			<field name="global_id">EBAY-GB</field>
+			<field name="ebay_site_id">3</field>
+		</record>
+
+		<record id="11" model="ebay.global.id.values">
+			<field name="site_name">eBay Hong Kong</field>
+			<field name="global_id">EBAY-HK</field>
+			<field name="ebay_site_id">201</field>
+		</record>
+
+		<record id="12" model="ebay.global.id.values">
+			<field name="site_name">eBay Ireland</field>
+			<field name="global_id">EBAY-IE</field>
+			<field name="ebay_site_id">205</field>
+		</record>
+
+		<record id="13" model="ebay.global.id.values">
+			<field name="site_name">eBay India</field>
+			<field name="global_id">EBAY-IN</field>
+			<field name="ebay_site_id">203</field>
+		</record>
+
+		<record id="14" model="ebay.global.id.values">
+			<field name="site_name">eBay Italy</field>
+			<field name="global_id">EBAY-IT</field>
+			<field name="ebay_site_id">101</field>
+		</record>
+
+		<record id="15" model="ebay.global.id.values">
+			<field name="site_name">eBay Motors</field>
+			<field name="global_id">EBAY-MOTOR</field>
+			<field name="ebay_site_id">100</field>
+		</record>
+
+		<record id="16" model="ebay.global.id.values">
+			<field name="site_name">eBay Malaysia</field>
+			<field name="global_id">EBAY-MY</field>
+			<field name="ebay_site_id">207</field>
+		</record>
+
+		<record id="17" model="ebay.global.id.values">
+			<field name="site_name">eBay Netherlands</field>
+			<field name="global_id">EBAY-NL</field>
+			<field name="ebay_site_id">146</field>
+		</record>
+
+		<record id="18" model="ebay.global.id.values">
+			<field name="site_name">eBay Belgium (Dutch)</field>
+			<field name="global_id">EBAY-NLBE</field>
+			<field name="ebay_site_id">123</field>
+		</record>
+		
+		<record id="19" model="ebay.global.id.values">
+			<field name="site_name">eBay Philippines</field>
+			<field name="global_id">EBAY-PH</field>
+			<field name="ebay_site_id">211</field>
+		</record>
+
+		<record id="20" model="ebay.global.id.values">
+			<field name="site_name">eBay Poland</field>
+			<field name="global_id">EBAY-PL</field>
+			<field name="ebay_site_id">212</field>
+		</record>
+
+		<record id="21" model="ebay.global.id.values">
+			<field name="site_name">eBay Singapore</field>
+			<field name="global_id">EBAY-SG</field>
+			<field name="ebay_site_id">216</field>
+		</record>
+
+		<record id="22" model="ebay.global.id.values">
+			<field name="site_name">eBay United States</field>
+			<field name="global_id">EBAY-US</field>
+			<field name="ebay_site_id">0</field>
+		</record>	
+
+		<record id="wk_account_journal_paypal" model="account.journal">
+			<field name="name">PayPal</field>
+			<field name="type">bank</field>
+			<field name="code">P</field>
+		</record>
+		
+		<record id="ebay_channel" model="multi.channel.sale">
+			<field name="name">Ebay</field>
+			<field name="channel">ebay</field>
+			<field name="environment">sandbox</field>
+			<field name="debug">disable</field>
+			<field name="ebay_sellerid">testuser_jahangir</field>
+			<field name="ebay_appid">Webkul05e-d642-4303-9203-588e694b870</field>
+			<field name="ebay_devid">8aa25d77-cb20-4fa1-964b-0bf61d0624cf</field>
+			<field name="ebay_certid">983f5288-437a-49d4-9958-4da6e5db95be</field>
+			<field name="ebay_global_value_id" ref="22"/>
+			<field name="ebay_token">AgAAAA**AQAAAA**aAAAAA**4/SfXg**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4GjCZeApQudj6x9nY+seQ**9KIDAA**AAMAAA**7pcTSWW1WMGy0xPIw7ti1qZinacRfP3Vyi/JSIr7fElCsGXR/Wpj9asZiQ0icxyae+Uj210qsqRaiLJExKhE2YccIByhjlIOM/2Ax5SE4lrM0jCwhShWqbXqQ8rI19CCTHY6buWsuLDv9yzrGCvSR+HhJb0lSAk/3oHIZvi5NuxuIyvVdK7r8PL5+VKb9qa6lXtPKCSpmJIYNjrX3ru0U7P+by1//Jmh53rza3TqXFYkLBVY2ctDiobszAs2o0QRQwr4soyBbWYnfSt+J3uvfQeK/S4f4VIDUJEP5xmpbeudy07o3oGAR2HR4Vx/Yjpo8iEPGUdHCTn0DXt/3/QYRS/qBxRSuHn1ccc8xEUtkJQhkLxL8uLts/Dad3evaSUaNQw3Vicpm7S+mvIuLEAKYP6txf/cBNm8bK3ehfB9dqn7ECF5g4vvkixZ5owyavau+h87yY3JZqDB4oUhik4IFWIir7L9EO+PS7eW5e6+cspF5J8UQvnC/OAW/fVe2L8Oraz0uMAnKcNpsnbV2wIoyVsLKVaeUFdUgoOjD2/l8jK2cgvyLtiGxcV7wNqMM715Koc2IWSaIfhwExSwOtM02cK8DR/SBCklkYus+o5GEfSUnmKWc6t2IOKJ1rslcnEAH3jh2csGxHfORsNokE34gjmSHdomA/ERuw21kFV/DUz+BXpEIpizqzd+JKLYVgUd8MbrasyFF6p4GB9pw3LJK9akbb34Vd3tVPdJrQnEdt4E480do69m/gxR+wbnWTaV</field>
+			<field name="order_state_ids" eval="
+			[
+				(0,0,{'channel_state':'Active','default_order_state':True,'odoo_order_state':'draft'}),
+				(0,0,{'channel_state':'Shipped','odoo_create_invoice':True,'odoo_ship_order':True,
+					'odoo_set_invoice_state':'paid','odoo_order_state':'done'}),
+				(0,0,{'channel_state':'Cancelled','odoo_order_state':'cancelled'}),
+			]
+			 "
+			/>		
+		</record>
+		
+		<record id="payment_method_mapping_paypal" model="channel.account.journal.mappings">
+			<field name="ecom_store">ebay</field>
+			<field name="name">PayPal</field>
+			<field name="store_journal_name">PayPal</field>
+			<field name="odoo_journal" ref="wk_account_journal_paypal"/>
+			<field name="journal_code">P</field>
+			<field name="odoo_journal_id" ref="wk_account_journal_paypal"/>
+			<field name="channel_id" ref="ebay_channel"/>
+		</record>
+	</data>
+</odoo>

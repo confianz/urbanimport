@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2015-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- "License URL : <https://store.webkul.com/license.html/>" -->
+<odoo>
+	<data>
+		<record id="ebay_odoo_bridge.export_odoo_products_form" model="ir.ui.view">
+			<field name="name">export.products.ebay.form</field>
+			<field name="model">export.products</field>
+			<field name="inherit_id" ref="odoo_multi_channel_sale.export_odoo_products_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//button[@name='cancel']" position="before">
+					<button
+						name  ="export_ebay_products"
+						type  ="object"
+						string="Confirm Export/Update"
+						attrs ="{'invisible':[('channel','!=','ebay')]}"
+						class ="oe_highlight"
+					/>
+				</xpath>
+			</field>
+		</record>
+	</data>
+</odoo>

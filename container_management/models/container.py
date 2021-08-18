@@ -209,7 +209,6 @@ class ContainerLines(models.Model):
     def onchange_po_id(self):
         self.purchase_line = False
 
-
     @api.depends('purchase_line','purchase_line.qty_loaded_in_cont','qty_to_load')
     def compute_ordered_remain_qty(self):
         for rec in self:
@@ -218,12 +217,28 @@ class ContainerLines(models.Model):
                 qty = (rec.purchase_line.product_qty - rec.purchase_line.qty_received) - rec.purchase_line.qty_loaded_in_cont
             rec.ordered_qty = qty
 
+    # @api.onchange('qty_to_load')
+    # def onchange_qty_to_load(self):
+    #     if self.qty_to_load > self.ordered_qty:
+    #         self.ordered_qty = 0
+    #         raise ValidationError("Please Set the Quantity to load in Container Lines according to Remaining Quantity")
+
+
     @api.model
     def create(self, vals):
         mbl_id = self.env['master.house.bill.lading'].browse(vals.get('mbl_id',False))
         if mbl_id:
             vals['state'] = mbl_id.state
         res = super(ContainerLines, self).create(vals)
+        if res.ordered_qty < 0:
+            raise ValidationError("Please Set the Quantity to load in Container Lines according to Remaining Quantity")
+        return res
+
+    def write(self, vals):
+        res = super(ContainerLines, self).write(vals)
+        for record in self:
+            if record.ordered_qty < 0:
+                raise ValidationError("Please Set the Quantity to load in Container Lines according to Remaining Quantity")
         return res
 
 #    @api.multi

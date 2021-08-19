@@ -38,7 +38,7 @@ class AmazonAccount(models.Model):
         :param fallback: whether a fallback to the default product is needed
         """
         self.ensure_one()
-        edi_record = self.env['edi.customer'].search([('sku_product_id', '=', product_code),
+        edi_record = self.env['edi.customer'].search([('sku_productid', '=', product_code),
                                                               ('partner_id', '=', self.partner_id.id)], limit=1)
         product = edi_record.product_id.product_variant_id
         if not product and fallback:  # Fallback to the default product

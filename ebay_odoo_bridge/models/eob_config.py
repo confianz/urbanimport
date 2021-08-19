@@ -483,7 +483,7 @@ class MultiChannelSale(models.Model):
 					if date_condition else self.import_order_date,
 				updated_at_max=self.import_order_date \
 					if date_condition else date_utils.add(self.import_order_date, months=1),
-				order_status='All',
+				order_status='Active',
 				cron_service=True,
 			)
 			self.env["import.operation"].create({

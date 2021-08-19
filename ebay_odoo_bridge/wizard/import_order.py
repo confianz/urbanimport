@@ -12,6 +12,7 @@ from odoo.tools import date_utils
 from odoo.addons.odoo_multi_channel_sale.tools import _unescape
 
 import logging
+
 _logger = logging.getLogger(__name__)
 
 
@@ -44,13 +45,13 @@ class ImportEbayOrders(models.TransientModel):
 		return False
 
 	def _getTaxName(self, ebay_item, ebay_order):
-		tax_type = ebay_item.get('Taxes',{}).get('TaxDetails',{}).get('Imposition')
-		tax_pecent = ebay_order.get('ShippingDetails',{}).get(tax_type,{}).get('SalesTaxPercent','0.0')
+		tax_type = ebay_item.get('Taxes', {}).get('TaxDetails', {}).get('Imposition')
+		tax_pecent = ebay_order.get('ShippingDetails', {}).get(tax_type, {}).get('SalesTaxPercent', '0.0')
 		tax_vals = {
-				'rate': tax_pecent,
-				'name': 'Tax %s'%(tax_pecent),
-				'tax_type'    : 'percent',
-				'include_in_price': False,
+			'rate': tax_pecent,
+			'name': 'Tax %s' % (tax_pecent),
+			'tax_type': 'percent',
+			'include_in_price': False,
 		}
 		return tax_vals
 
@@ -64,7 +65,7 @@ class ImportEbayOrders(models.TransientModel):
 		vals['invoice_partner_id'] = ebay_order['BuyerUserID']
 		name = ''
 		if EbayCustomerInfo.get('UserFirstName'):
-			name = EbayCustomerInfo.get('UserFirstName')+EbayCustomerInfo.get('UserLastName', '')
+			name = EbayCustomerInfo.get('UserFirstName') + EbayCustomerInfo.get('UserLastName', '')
 		if name == '':
 			if ebay_cust_shipping_adrs.get('Name'):
 				name = ebay_cust_shipping_adrs.get('Name')
@@ -108,7 +109,8 @@ class ImportEbayOrders(models.TransientModel):
 		res = {}
 		if isinstance(ebay_item, (list)):
 			ebay_item = ebay_item[0]
-		res["ProductFeedId"] = self.env['import.ebay.products'].with_context(OrderCall=True).get_product_using_product_id(
+		res["ProductFeedId"] = self.env['import.ebay.products'].with_context(
+			OrderCall=True).get_product_using_product_id(
 			ebay_item['Item']['ItemID'], channel_id)
 		return res
 
@@ -128,24 +130,24 @@ class ImportEbayOrders(models.TransientModel):
 			'line_product_uom_qty': ebay_item['QuantityPurchased'],
 			'line_product_id': ebay_item['Item']['ItemID'],
 			'line_variant_ids': self.GetVariantID(ebay_item),
-			'line_name':     ebay_item['Item']['Title'],
-			'line_taxes':   []
+			'line_name': ebay_item['Item']['Title'],
+			'line_taxes': []
 		})
 		self._GetFeedOrderProduct(ebay_item, ChannelID)
 		callData = {
-					'IncludeTaxTable':True,
-					'IncludeItemSpecifics': True,
-					'ItemID': ebay_item['Item']['ItemID']
-				}
+			'IncludeTaxTable': True,
+			'IncludeItemSpecifics': True,
+			'ItemID': ebay_item['Item']['ItemID']
+		}
 		response = api.execute('GetItem', callData)
 		result = response.dict()
-		if result['Ack']=='Success':
+		if result['Ack'] == 'Success':
 			if 'VATDetails' in result['Item']:
-				tax_pecent = result['Item']['VATDetails'].get('VATPercent','0.0')
+				tax_pecent = result['Item']['VATDetails'].get('VATPercent', '0.0')
 				tax_vals = {
 					'rate': tax_pecent,
-					'name': 'Tax %s'%(tax_pecent),
-					'tax_type'    : 'percent',
+					'name': 'Tax %s' % (tax_pecent),
+					'tax_type': 'percent',
 					'include_in_price': False,
 				}
 				feed_vals["line_taxes"] = [tax_vals]
@@ -170,7 +172,7 @@ class ImportEbayOrders(models.TransientModel):
 					feed_vals["line_taxes"] = [tax_vals]
 		else:
 			feed_vals.update({'line_type': 'multi'})
-			line_vals_list = [(5,0)]
+			line_vals_list = [(5, 0)]
 			for ebay_item in ebay_items:
 				line_vals = {}
 				res = self.with_context(**context).GetFeedOrderProductValues(ebay_item, ChannelID)
@@ -180,14 +182,16 @@ class ImportEbayOrders(models.TransientModel):
 					if tax_vals:
 						line_vals["line_taxes"] = [tax_vals]
 				line_vals_list.append((0, 0, line_vals))
-			if ebay_order.get('ShippingServiceSelected'):
+			if ebay_order.get('ShippingServiceSelected') and ebay_order.get('ShippingServiceSelected').get(
+				'ShippingService', False) and ebay_order.get('ShippingServiceSelected').get('ShippingService',
+																							False) != 'NotSelected':
 				shipping_info = ebay_order.get('ShippingServiceSelected')
 				line_vals_list.append((0, 0, {
-					'line_name'           : shipping_info.get('ShippingService'),
+					'line_name': shipping_info.get('ShippingService'),
 					'line_product_uom_qty': 1,
-					'line_source'         : 'delivery',
-					'line_product_id'     : shipping_info.get('ShippingService'),
-					'line_price_unit'     : shipping_info.get('ShippingServiceCost').get('value')
+					'line_source': 'delivery',
+					'line_product_id': shipping_info.get('ShippingService'),
+					'line_price_unit': shipping_info.get('ShippingServiceCost').get('value')
 				}))
 			feed_vals.update({'line_ids': line_vals_list})
 
@@ -197,6 +201,7 @@ class ImportEbayOrders(models.TransientModel):
 
 	@api.model
 	def _CreateOrderFeedVal(self, ebay_order, partner_store_id):
+		print('ebay_order---------------------', ebay_order)
 		context = self._context.copy() or {}
 		ChannelID = context.get('channel_id')
 		OrderFeedVals = {
@@ -207,10 +212,14 @@ class ImportEbayOrders(models.TransientModel):
 			'store_id': ebay_order['OrderID'],
 			'order_state': ebay_order['OrderStatus'],
 			'line_source': 'product',
-			'currency': ebay_order.get('TransactionArray').get('Transaction')[0].get('TransactionPrice').get('_currencyID'),
-			'date_order': ebay_order.get('CreatedTime', False).replace('T',' ').split('.')[0],
-			'date_invoice': ebay_order.get('PaidTime', False).replace('T',' ').split('.')[0],
-			'confirmation_date': ebay_order.get('CreatedTime', False).replace('T',' ').split('.')[0],
+			'currency': ebay_order.get('TransactionArray').get('Transaction')[0].get('TransactionPrice').get(
+				'_currencyID'),
+			'date_order': ebay_order.get('CreatedTime', False) and
+						  ebay_order.get('CreatedTime', False).replace('T', ' ').split('.')[0],
+			'date_invoice': ebay_order.get('PaidTime', False) and
+							ebay_order.get('PaidTime', False).replace('T', ' ').split('.')[0],
+			'confirmation_date': ebay_order.get('CreatedTime', False) and
+								 ebay_order.get('CreatedTime', False).replace('T', ' ').split('.')[0],
 		}
 		shipping_vals = self.CreateShippingInvoiceAddress(ebay_order)
 		OrderFeedVals.update(shipping_vals)
@@ -254,7 +263,7 @@ class ImportEbayOrders(models.TransientModel):
 					'DetailLevel': 'ReturnAll',  # ItemReturnDescription
 					'Pagination': {'EntriesPerPage': EntriesPerPage, 'PageNumber': page},
 					'CreateTimeFrom': context['from_datetime'],
-					'CreateTimeTo':  context['to_datetime'],
+					'CreateTimeTo': context['to_datetime'],
 					# 'OutputSelector': self._output_selector,
 					'SortingOrder': 'Ascending',
 				}
@@ -265,7 +274,8 @@ class ImportEbayOrders(models.TransientModel):
 					})
 				if context.get('order_status'):
 					callData['OrderStatus'] = context['order_status']
-				api.config.set("compatibility", '1113') #For new Order Number
+				api.config.set("compatibility", '1113')  # For new Order Number
+				print('callDatacallDatacallDatacallData', callData)
 				response = api.execute('GetOrders', callData)
 				result_dict = response.dict()
 				if channel_id.debug == 'enable':
@@ -275,7 +285,8 @@ class ImportEbayOrders(models.TransientModel):
 						message = 'No Orders To Import In This Time Interval..'
 						_logger.info(message)
 						break
-					elif result_dict['OrderArray'] and result_dict['OrderArray']['Order'] and type(result_dict['OrderArray']['Order']) == list:
+					elif result_dict['OrderArray'] and result_dict['OrderArray']['Order'] and type(
+						result_dict['OrderArray']['Order']) == list:
 						result.extend(result_dict['OrderArray']['Order'])
 					else:
 						result.append(result_dict['OrderArray']['Order'])
@@ -283,16 +294,16 @@ class ImportEbayOrders(models.TransientModel):
 				else:
 					message = message + 'STATUS : %s <br>' % result_dict['Ack']
 					message = message + \
-						'PAGE : %s <br>' % result_dict['PageNumber']
+							  'PAGE : %s <br>' % result_dict['PageNumber']
 					message = message + \
-						'ErrorCode : %s <br>' % result_dict[
-							'Errors']['ErrorCode']
+							  'ErrorCode : %s <br>' % result_dict[
+								  'Errors']['ErrorCode']
 					message = message + \
-						'ErrorParameters : %s <br>' % result_dict[
-							'Errors']['ErrorParameters']
+							  'ErrorParameters : %s <br>' % result_dict[
+								  'Errors']['ErrorParameters']
 					message = message + \
-						"LongMessage: %s <br>" % result_dict[
-							'Errors']['LongMessage']
+							  "LongMessage: %s <br>" % result_dict[
+								  'Errors']['LongMessage']
 					_logger.info(message)
 					break
 		except Exception as e:
@@ -301,7 +312,7 @@ class ImportEbayOrders(models.TransientModel):
 
 	@api.model
 	def import_now(self, **kw):
-		li_feed_vals = [] #Stores list of order feeds vals
+		li_feed_vals = []  # Stores list of order feeds vals
 		context = dict(self._context or {})
 		ConfObj = self.env["multi.channel.sale"]
 		ChannelID = kw.get('channel_id')
@@ -327,7 +338,8 @@ class ImportEbayOrders(models.TransientModel):
 					for orders, has_more in result:
 						li_feed_vals = self.with_context(
 							context)._CreateOdooFeedValsList(orders)
-						if has_more:kw['page'] += 1
+						if has_more:
+							kw['page'] += 1
 						else:
 							kw['page'] = 0
 							if kw.get('cron_service'):
@@ -341,8 +353,8 @@ class ImportEbayOrders(models.TransientModel):
 				raise UserError("Filter 'all' is not available for importing sale order")
 		return li_feed_vals, kw
 
-	# ebay_sorting_order = fields.Selection(
-	#     [('Ascending', 'Ascending'), ('Descending', 'Descending')],
-	#     string='Sort By',
-	#     default="Ascending",
-	#     help="sorting order of the returned orders")
+# ebay_sorting_order = fields.Selection(
+#     [('Ascending', 'Ascending'), ('Descending', 'Descending')],
+#     string='Sort By',
+#     default="Ascending",
+#     help="sorting order of the returned orders")

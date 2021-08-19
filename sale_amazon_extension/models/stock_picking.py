@@ -1,6 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from odoo import api, fields, models, _
 from odoo.osv import expression
+from odoo.exceptions import UserError
 
 
 class StockPicking(models.Model):
@@ -16,21 +17,24 @@ class StockPicking(models.Model):
         to those whose account is listed. If it is not provided, all pickings are synchronized.
         :param account_ids: the ids of accounts whose pickings should be synchronized
         """
-        pickings_by_account = {}
-        for picking in self.search([('amazon_sync_pending', '=', True)]):
-            if picking.sale_id.order_line:
-                offer = picking.sale_id.order_line[0].amazon_offer_id
-                account = offer and offer.account_id  # Offer can be deleted before the cron update
-                if not account or (account_ids and account.id not in account_ids):
-                    continue
-                pickings_by_account.setdefault(account, self.env['stock.picking'])
-                if picking.picking_type_id.code != 'outgoing': # sync only OUT picking in 3 step delivery.
-                    continue
-                pickings_by_account[account] += picking
-        for account, pickings in pickings_by_account.items():
-            pickings._confirm_shipment(account)
+        raise UserError("Amazon update restricted temporarily")
+#        pickings_by_account = {}
+#        for picking in self.search([('amazon_sync_pending', '=', True)]):
+#            if picking.sale_id.order_line:
+#                offer = picking.sale_id.order_line[0].amazon_offer_id
+#                account = offer and offer.account_id  # Offer can be deleted before the cron update
+#                if not account or (account_ids and account.id not in account_ids):
+#                    continue
+#                pickings_by_account.setdefault(account, self.env['stock.picking'])
+#                if picking.picking_type_id.code != 'outgoing': # sync only OUT picking in 3 step delivery.
+#                    continue
+#                pickings_by_account[account] += picking
+#        for account, pickings in pickings_by_account.items():
+#            pickings._confirm_shipment(account)
 
-
+    def _confirm_shipment(self, account):
+         """ Send the order confirmation feed to Amazon for a batch of orders. """
+         raise UserError("Amazon update restricted temporarily")
 class ProcurementGroup(models.Model):
     _inherit = 'procurement.group'
 

@@ -4,6 +4,7 @@ import logging
 
 from odoo import fields, models, _
 from odoo.addons.sale_amazon.models import mws_connector as mwsc
+from odoo.exceptions import UserError
 
 
 _logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ class AmazonAccount(models.Model):
         :param fallback: whether a fallback to the default product is needed
         """
         self.ensure_one()
-        edi_record = self.env['edi.customer'].search([('sku_product_id', '=', product_code),
+        edi_record = self.env['edi.customer'].search([('sku_productid', '=', product_code),
                                                               ('partner_id', '=', self.partner_id.id)], limit=1)
         product = edi_record.product_id.product_variant_id
         if not product and fallback:  # Fallback to the default product
@@ -101,7 +102,8 @@ class AmazonAccount(models.Model):
                     _logger.info("ignored %s amazon order with reference %s for amazon.account "
                                  "with id %s" % (amazon_status.lower(), amazon_order_ref, self.id))
         return amazon_order_ref, rate_limit_reached, sync_failure
-
+    def action_sync_pickings(self):
+         raise UserError("Amazon update restricted temporarily")
     def _get_order(self, order_data, items_data, amazon_order_ref):
         """ Find or create a sale order based on Amazon data. """
         self.ensure_one()
@@ -126,8 +128,7 @@ class AmazonAccount(models.Model):
                 [('name', '=', currency_code)], limit=1)
             pricelist = self._get_pricelist(currency)
             contact_partner, delivery_partner = self._get_partners(order_data, amazon_order_ref)
-            fiscal_position_id = self.env['account.fiscal.position'].with_context(
-                force_company=self.company_id.id).get_fiscal_position(
+            fiscal_position_id = self.env['account.fiscal.position'].with_company(self.company_id).get_fiscal_position(
                 contact_partner.id, delivery_partner.id)
             fiscal_position = self.env['account.fiscal.position'].browse(fiscal_position_id)
 
@@ -143,15 +144,7 @@ class AmazonAccount(models.Model):
                     state = 'draft'
                     amazon_product_context = True
             warehouse_id =False
-            if fulfillment_channel == 'AFN':
-                warehouse_id = self.warehouse_id.id
-            else:
-                carrier = self.env['delivery.carrier'].search([('delivery_type', '=', 'ups'), ('ups_default_service_type', '=', '03')])
-                warehouse = self.env['stock.warehouse'].search([('warehouse_type', '=', 'sub_warehouse')], limit=1)
-                if warehouse:
-                    warehouse_id = warehouse.id
-            order = self.env['sale.order'].with_context(mail_create_nosubscribe=True, amazon_product=amazon_product_context).create({
-                'origin': 'Amazon Order %s' % amazon_order_ref,
+            vals={'origin': 'Amazon Order %s' % amazon_order_ref,
                 'state': state,
                 'date_order': purchase_date,
                 'partner_id': contact_partner.id,
@@ -167,11 +160,21 @@ class AmazonAccount(models.Model):
                 'team_id': self.team_id.id,
                 'carrier_id': carrier and carrier.id or False,
                 'is_amazon_order': True,
-                'warehouse_id': warehouse_id,
+                # 'warehouse_id': warehouse_id,
                 'client_order_ref': amazon_order_ref,
                 'amazon_order_ref': amazon_order_ref,
                 'amazon_channel': 'fba' if fulfillment_channel == 'AFN' else 'fbm',
-            })
+            }
+            if fulfillment_channel == 'AFN':
+                warehouse_id = self.warehouse_id.id
+                vals.update({'warehouse_id': warehouse_id})
+            else:
+                carrier = self.env['delivery.carrier'].search(
+            [('delivery_type', '=', 'fedex'),  ('fedex_service_type', '=', 'GROUND_HOME_DELIVERY')])
+                #warehouse = self.env['stock.warehouse'].search([('warehouse_type', '=', 'sub_warehouse')], limit=1)
+                #if warehouse:
+                    #warehouse_id = warehouse.id
+            order = self.env['sale.order'].with_context(mail_create_nosubscribe=True, amazon_product=amazon_product_context).create(vals)
         return order, order_found, status
 
     def _process_order_lines(
@@ -205,7 +208,9 @@ class AmazonAccount(models.Model):
             sales_price = mwsc.get_amount_value(item_data, 'ItemPrice')
             tax_amount = mwsc.get_amount_value(item_data, 'ItemTax')
 
-            offer = self._get_offer(order_data, sku)
+            marketplace = self.active_marketplace_ids.filtered(
+                lambda m: m.api_ref == marketplace_api_ref)
+            offer = self._get_offer(sku, marketplace)
             product_taxes = offer.product_id.taxes_id.filtered(
                 lambda t: t.company_id.id == self.company_id.id)
             taxes = fiscal_pos.map_tax(product_taxes) if fiscal_pos else product_taxes
@@ -280,7 +285,7 @@ class AmazonAccount(models.Model):
                     discount=mwsc.get_amount_value(item_data, 'ShippingDiscount')))
 
         return new_order_lines_vals
-
+    
     def _get_partners(self, order_data, amazon_order_ref):
         """ Find or create two partners of respective type contact and delivery from Amazon data. """
         self.ensure_one()

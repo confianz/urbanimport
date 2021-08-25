@@ -176,12 +176,13 @@ class MasterHouseBillLading(models.Model):
         picking = []
 #        oc_loc_id = self.env['stock.warehouse'].search([('code', '=', 'OC')]).lot_stock_id
         for line in po_lines:
+            print('linelineline',line)
             p_order = line.get('po_id')
             picking_id = p_order.picking_ids.filtered(lambda rec:rec.state not in ['draft','cancel','done'] and rec.warehouse_type == 'ocean')
             if not picking_id:
                 raise ValidationError("Shipment for purchase order %s either in 'Draft','Cancel' or 'Done' status.This can't be moved to ocean" % (p_order.name))
             if len(picking_id) == 1:
-                picking_move_id = picking_id.mapped('move_ids_without_package').filtered(lambda rec:rec.product_id.id == line.get('product_id'))
+                picking_move_id = picking_id.mapped('move_ids_without_package').filtered(lambda rec:rec.product_id.id == line.get('product_id') and rec.purchase_line_id.id == line.get('p_line').id)
                 if picking_move_id.product_qty < line.get('qty'):
                     raise ValidationError("""Shipped  Qty for the product '%s(%s)' is exceeded Ordered Qty.Please check Qty loaded in the Container(s).""" % (line.get('p_line').name,line.get('p_line').order_id.name))
                 picking_move_id.write({'quantity_done' : line.get('qty')})

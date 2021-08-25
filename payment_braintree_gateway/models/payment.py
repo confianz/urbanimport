@@ -30,6 +30,9 @@ class AccountPayment(models.Model):
                     raise UserError(_(
                         'In order to cancel this payment, refund the settled payment by creating a credit memo \nError message - %s',
                         result.message))
+                each.payment_transaction_id.write({
+                    'state': 'cancel', 'payment_id': False,
+                })
         res = super(AccountPayment, self).action_cancel()
         return res
 
@@ -128,7 +131,7 @@ class TxBraintree(models.Model):
             datetime.datetime.now().strftime('%y%m%d_%H%M%S'), self.partner_id.id)
 
         tx_values = {
-            'amount': str(round(self.amount,2)),
+            'amount': str(round(self.amount, 2)),
             'order_id': order_ref,
             'customer_id': self.payment_token_id.acquirer_ref,
             'merchant_account_id': merchant_account,

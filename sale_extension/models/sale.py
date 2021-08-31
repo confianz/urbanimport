@@ -9,6 +9,7 @@ EBAY_DATEFORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 def _ebay_parse_date(s):  # should be fromisoformat starting with datetime 3.7
     return datetime.strptime(s, EBAY_DATEFORMAT)
 
+
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
@@ -41,11 +42,28 @@ class SaleOrder(models.Model):
 
         sale_order._process_order_shipping(order)
 
-    # @api.onchange('partner_shipping_id')
-    # def _onchange_partner_shipping_id(self):
-    #     state_id = self.partner_shipping_id.state_id
-    #     if state_id and state_id.warehouse_id:
-    #         self.warehouse_id = state_id.warehouse_id.id
-    #     return super(SaleOrder, self)._onchange_partner_shipping_id()
 
 SaleOrder()
+
+
+class SaleOrderLine(models.Model):
+    _inherit = "sale.order.line"
+
+    @api.model
+    def create(self, vals):
+        line = super(SaleOrderLine, self).create(vals)
+        if len(line.order_id.order_line.filtered(lambda o_line: o_line.product_id.type != 'service').ids) == 1:
+            product_id = line.order_id.order_line.mapped('product_id')[0]
+            qty = line.order_id.order_line.mapped('product_uom_qty')[0]
+            if product_id.is_flat_rate and product_id.delivery_carrier_id == line.order_id.carrier_id and line.name == product_id.delivery_carrier_id.name:
+                line.price_unit = product_id.flat_rate * qty
+        return line
+
+    def write(self, vals):
+        if len(self.order_id.order_line.filtered(lambda o_line: o_line.product_id.type != 'service').ids) == 1:
+            product_id = self.order_id.order_line.mapped('product_id')[0]
+            qty = self.order_id.order_line.mapped('product_uom_qty')[0]
+            if product_id.is_flat_rate and product_id.delivery_carrier_id == self.order_id.carrier_id and self.name == product_id.delivery_carrier_id.name:
+                vals['price_unit'] = product_id.flat_rate * qty
+        line = super(SaleOrderLine, self).write(vals)
+        return line

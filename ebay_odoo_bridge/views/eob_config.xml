@@ -59,8 +59,17 @@
             <field name="model">multi.channel.sale</field>
             <field name="inherit_id" ref="odoo_multi_channel_sale.multi_channel_view_form" />
             <field name="arch" type="xml">
+				<xpath expr="//div[@name='channels']" position="after">
+					<div name="ebay_partner_id" groups="base.group_user">
+						<div>
+							<label for="ebay_partner_id" string="Ebay Partner:"/>
+							<field name="ebay_partner_id"
+								   attrs="{'invisible':[('channel','!=', 'ebay')],'required':[('channel','=','ebay')]}"/>
+						</div>
+					</div>
+				</xpath>
 
-                <group name="credentials" position='inside'>
+				<group name="credentials" position='inside'>
                     <group name="logininfo" attrs="{'invisible':[('channel','!=', 'ebay')]}" col="2" colspan="2">
                         <field name="ebay_sellerid"  attrs="{'readonly':[('state','=','validate')],'required':[('channel','=','ebay')],'invisible':[('channel','!=','ebay')]}"/>
                         <field name="ebay_appid"  attrs="{'readonly':[('state','=','validate')],'required':[('channel','=','ebay')],'invisible':[('channel','!=','ebay')],'invisible':[('channel','!=','ebay')]}"/>

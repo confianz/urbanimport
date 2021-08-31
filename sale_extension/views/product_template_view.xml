@@ -9,7 +9,15 @@
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='type']" position="after">
-                        <field name="inventory_type"/>
+                    <field name="inventory_type"/>
+                </xpath>
+
+                <xpath expr="//field[@name='type']" position="before">
+                    <field name="is_flat_rate"/>
+                    <field name="flat_rate"
+                           attrs="{'required': [('is_flat_rate', '=', True)],'invisible': [('is_flat_rate', '=', False)]}"/>
+                    <field name="delivery_carrier_id"
+                           attrs="{'required': [('is_flat_rate', '=', True)],'invisible': [('is_flat_rate', '=', False)]}"/>
                 </xpath>
             </field>
         </record>

@@ -137,7 +137,7 @@ class DeliveryCarrier(models.Model):
                 mode='rating',
             )
             srm.set_master_package(weight_value, 1)
-        print('srmsrmsrmsrm',srm.RequestedShipment)
+        # print('srmsrmsrmsrm',srm.RequestedShipment)
 
         request = srm.rate()
         # print('requestrequestrequestrequestrequest',request)

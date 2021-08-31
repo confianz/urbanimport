@@ -234,6 +234,12 @@ class MultiChannelSale(models.Model):
 			status = False
 		return {'data': data, 'status': status, 'message': message}
 
+	ebay_partner_id = fields.Many2one(
+		comodel_name='res.partner',
+		string='Ebay Partner',
+		help="This will be the Partner in Ebay Sale Orders (Delivery Address will be the Customer of Ebay Orders)",
+	)
+
 	ebay_global_value_id = fields.Many2one(
 		comodel_name='ebay.global.id.values',
 		string='Ebay Site',

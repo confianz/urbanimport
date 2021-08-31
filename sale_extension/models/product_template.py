@@ -7,6 +7,10 @@ class ProductTemplate(models.Model):
     inventory_type = fields.Char('Inventory Type')
     real_name = fields.Char('Real Name')
 
+    is_flat_rate = fields.Boolean('Is Flat Rate')
+    flat_rate = fields.Float('Flat Rate')
+    delivery_carrier_id = fields.Many2one('delivery.carrier')
+
 
 
 # class ProductProduct(models.Model):

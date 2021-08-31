@@ -4,9 +4,8 @@ import logging
 import requests
 from requests.auth import HTTPBasicAuth
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
-
 
 _logger = logging.getLogger(__name__)
 
@@ -100,12 +99,20 @@ class ShipstationConnector(models.AbstractModel):
         }
         """
         rates = []
-        res = self._send_request('/shipments/getrates', data, method="POST")
-        if res is not False :
-            rates = res.json()
-            if 'ExceptionMessage' in rates:
-                raise ValidationError("%s: %s" % (rates.get('Message', ''), rates.get('ExceptionMessage', '')))
+        print('data', data)
+        try:
+            res = self._send_request('/shipments/getrates', data, method="POST")
+            print('res', res)
+            res.raise_for_status()
+
+            if res is not False:
+                rates = res.json()
+                if 'ExceptionMessage' in rates:
+                    raise ValidationError("%s: %s" % (rates.get('Message', ''), rates.get('ExceptionMessage', '')))
+        except requests.HTTPError as e:
+            raise ValidationError(_("Error From ShipStation : %s" % e))
         return rates
+
 
     def _create_order(self, vals={}):
         data = {}
@@ -113,6 +120,5 @@ class ShipstationConnector(models.AbstractModel):
         if res and res.ok:
             data = res.json()
         return data
-
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

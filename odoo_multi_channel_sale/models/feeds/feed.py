@@ -208,15 +208,20 @@ class WkFeed(models.Model):
 		context = dict(self._context)
 		context['no_mapping'] = self.customer_is_guest
 		try:
+
 			partner_id = self.with_context(context).create_partner_contact_id(
 					partner_id,channel_id,store_partner_id)
 			partner_invoice_id = self.with_context(context).create_partner_invoice_id(
 				partner_id,channel_id,self.invoice_partner_id)
-			if self.same_shipping_billing:
-				partner_shipping_id = partner_invoice_id
-			else:
-				partner_shipping_id = self.with_context(context).create_partner_shipping_id(
-					partner_id,channel_id,self.shipping_partner_id)
+			# if self.same_shipping_billing:
+			# 	partner_shipping_id = partner_invoice_id
+			# else:
+			print('self.shipping_partner_idself.shipping_partner_idself.shipping_partner_id',self.shipping_partner_id)
+			partner_shipping_id = self.with_context(context).create_partner_shipping_id(
+				partner_id,channel_id,self.shipping_partner_id)
+			if channel_id.channel == 'ebay' and channel_id.ebay_partner_id:
+				partner_id = channel_id.ebay_partner_id
+				partner_invoice_id = channel_id.ebay_partner_id
 		except Exception as e:
 			message += e.args[0]
 		return dict(
@@ -255,7 +260,7 @@ class WkFeed(models.Model):
 	def get_product_id(self, store_product_id, line_variant_ids, channel_id, default_code=None, barcode=None):
 		message = ''
 
-		# Need to check significance of domain 
+		# Need to check significance of domain
 
 		# domain = []
 		# if default_code:

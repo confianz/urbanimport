@@ -768,7 +768,7 @@ class SaleOrderLineVts(models.Model):
     #x_studio_manufacturer = fields.Many2one('bc.product.brand',string='Manufacturer')
     big_commerce_tax = fields.Float(string="BigCommerce Tax", copy=False)
 
-        @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id')
+    @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id')
     def _compute_amount(self):
         """
         Compute the amounts of the SO line.

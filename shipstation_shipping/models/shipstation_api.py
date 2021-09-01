@@ -99,10 +99,8 @@ class ShipstationConnector(models.AbstractModel):
         }
         """
         rates = []
-        print('data', data)
         try:
             res = self._send_request('/shipments/getrates', data, method="POST")
-            print('res', res)
             res.raise_for_status()
 
             if res is not False:

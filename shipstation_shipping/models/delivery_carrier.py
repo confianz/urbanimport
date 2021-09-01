@@ -25,7 +25,7 @@ class ProviderShipStation(models.Model):
         })
 
         price_dict = rate_shipment_id.with_context({'shipstation': True}).get_rate_from_shipstation()
-        if price_dict['price']:
+        if 'price' in price_dict:
             success = True
             price = price_dict['price']
         else:

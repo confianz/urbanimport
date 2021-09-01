@@ -16,7 +16,6 @@ class StockPicking(models.Model):
 
     def _action_done(self):
         res = super(StockPicking, self)._action_done()
-        print(1010101010101)
         self.process_shipstation_shipping()
         return res
 

@@ -51,6 +51,7 @@ class ChooseDeliveryCarrier(models.TransientModel):
         markup_rate = self.shipstation_account_id.markup_rate or 0.0
         sale_order = self.order_id
         carriers = self.shipstation_carrier_id or self.shipstation_carrier_id.search([('shipstation_account_id', '=', self.shipstation_account_id.id)])
+        cost = 0
         for carrier in carriers:
             data = {
                 'carrierCode': carrier.code,

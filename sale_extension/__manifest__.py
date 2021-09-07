@@ -20,7 +20,7 @@
 ##############################################################################
 {
     'name': 'Sale Extension',
-    'version': '1.1',
+    'version': '1.2',
     'category': 'Sales/CRM',
     'summary': "Sales/Inventory",
     'description': """

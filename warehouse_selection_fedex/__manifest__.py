@@ -19,7 +19,7 @@ Warehouse Selection with Address Verification
     'init_xml': [
     ],
 
-    'depends': ['delivery', 'delivery_fedex','stock', 'shipstation_shipping', 'sale_extension', 'sale_amazon_extension'],
+    'depends': ['delivery', 'delivery_fedex','stock', 'shipstation_shipping', 'sale_extension'],
     'installable': True,
     'auto_install': False,
     'application': False,

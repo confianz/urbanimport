@@ -24,7 +24,15 @@ class StockPicking(models.Model):
             sale_order = picking.sale_id
             ss_account = sale_order.shipstation_account_id
             ss_warehouse = sale_order.warehouse_id.shipstation_warehouse_ids[:1]
+            # print('ss_warehousess_warehousess_warehouse',ss_warehouse)
+            # print('ss_warehousess_warehousess_warehouse',ss_warehouse.picking_type_id)
+            #
+            # print('ss_warehousess_warehousess_warehouse',picking.picking_type_id)
+            # print('ss_warehousess_warehousess_warehouse',ss_warehouse.picking_state)
+            # print('ss_warehousess_warehousess_warehouse',picking.state)
+
             if sale_order.is_shipstation_shipping and ss_warehouse.picking_type_id == picking.picking_type_id and ss_warehouse.picking_state == picking.state:
+                # print('inside')
                 picking.create_shipstation_order()
 
     def create_shipstation_order(self):
@@ -32,6 +40,7 @@ class StockPicking(models.Model):
         sale_order = self.sale_id
         order_vals = self.prepare_shipstation_order_data()
         res = sale_order.shipstation_account_id._create_order(order_vals)
+        # print('resresresresresresresresresresres',res)
         if res:
             self.write({
                 'shipstation_order_id': res.get('orderId'),

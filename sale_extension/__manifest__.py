@@ -31,8 +31,10 @@
     'images': [],
     'data': [
         # "views/stock_warehouse.xml",
+        "views/dimension.xml",
         "views/account.xml",
         "views/product_template_view.xml",
+        "views/res_partner_view.xml",
         "views/sale_order_view.xml",
 
     ],

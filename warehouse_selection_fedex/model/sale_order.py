@@ -111,7 +111,7 @@ class SaleOrder(models.Model):
         return upcoming_shipments
 
     def find_set_delivery_line(self, carrier, price):
-        if self.bigcommerce_store_id or self.is_ebay_order or self.is_amazon_order:
+        if self.bigcommerce_store_id or self.channel_mapping_ids or self.is_amazon_order:
             carrier = self.env['delivery.carrier'].search(
                 [('delivery_type', '=', 'shipstation'), ('shipstation_service_code', '=', 'usps_priority_mail')],
                 limit=1)
@@ -133,6 +133,7 @@ class SaleOrder(models.Model):
                 'shipstation_carrier_id': shp_service and shp_service.carrier_id.id or False,
                 'shipstation_account_id': carrier.shipstation_id.id,
             })
+            self.set_delivery_line(carrier, price)
         else:
             self.set_delivery_line(carrier, price)
             self.write({
@@ -181,8 +182,10 @@ class SaleOrder(models.Model):
             [('delivery_type', '=', 'fedex'), ('fedex_service_type', '=', fedex_service_type)], limit=1)
         if not carrier:
             raise UserError(_('Please Define Fedex Carrier Method with type - %s', fedex_service_type))
+        flat_calc = False
         price_dict = {}
         time_dict = {}
+        product_id = self.order_line.mapped('product_id')[0]
         quantity = self.max_qty_wh()
         for warehouse in warehouses:
             vals = carrier.fedex_rate_shipment_custom(self, warehouse)
@@ -199,12 +202,17 @@ class SaleOrder(models.Model):
         log = ''
         # print('price_dict', price_dict)
         # print('time_dict', time_dict)
-        if not len(list(set(list(time_dict.values())))) == 1:
+        if product_id.is_flat_rate and product_id.delivery_carrier_id.fedex_service_type == fedex_service_type:
+            flat_calc = True
+            log += 'selecting Flat rate logic\n'
+            self.message_post(body=('Product is on Flat Rate'),
+                              subtype_id=self.env.ref('mail.mt_note').id)
+        if not len(list(set(list(time_dict.values())))) == 1 and not flat_calc:
             log += 'selecting based on delivery time\n'
             warehouse, log = self.find_warehouse(time_dict, quantity, warehouses, log)
             if not warehouse:
                 warehouse = min(time_dict, key=time_dict.get)
-        elif not len(list(set(list(price_dict.values())))) == 1:
+        elif not len(list(set(list(price_dict.values())))) == 1 and not flat_calc:
             log += 'selecting based on rate\n'
             warehouse, log = self.find_warehouse(price_dict, quantity, warehouses, log)
             if not warehouse:
@@ -270,6 +278,6 @@ class SaleOrder(models.Model):
                 warehouse = order.update_warehouse(classification)
                 if warehouse:
                     order.warehouse_id = warehouse.id
-        if order.bigcommerce_store_id or order.is_ebay_order or order.is_amazon_order:
+        if order.bigcommerce_store_id or order.channel_mapping_ids or order.is_amazon_order:
             order.action_confirm()
         return order

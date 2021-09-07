@@ -20,21 +20,22 @@ class ShippingRate(models.TransientModel):
         sale_order = self.delivery_carrier_id.order_id
         shipstation_account = self.carrier_id.shipstation_account_id
         if sale_order:
-            shipping_line = sale_order.order_line.filtered('is_delivery')[:1]
-            if shipping_line:
-                shipping_line.write({
-                    'price_unit': self.price,
-                    'purchase_price': self.cost,
-                })
-            else:
-                shipping_line = sale_order.order_line.create({
-                    'product_id': shipstation_account.shipping_product_id.id,
-                    'product_uom_qty': 1,
-                    'price_unit': self.price,
-                    'purchase_price': self.cost,
-                    'is_delivery': True,
-                    'order_id': sale_order.id,
-                })
+            sale_order._remove_delivery_line()
+            # shipping_line = sale_order.order_line.filtered('is_delivery')[:1]
+            # if shipping_line:
+            #     shipping_line.write({
+            #         'price_unit': self.price,
+            #         'purchase_price': self.cost,
+            #     })
+            # else:
+            shipping_line = sale_order.order_line.create({
+                'product_id': shipstation_account.shipping_product_id.id,
+                'product_uom_qty': 1,
+                'price_unit': self.price,
+                'purchase_price': self.cost,
+                'is_delivery': True,
+                'order_id': sale_order.id,
+            })
 
             sale_order.write({
                 'is_shipstation_shipping': True,

@@ -27,6 +27,7 @@ class ShipstationConnector(models.AbstractModel):
             api_auth = HTTPBasicAuth(self.api_key, self.api_secret)
 
             res = requests.request(method, request_url, auth=api_auth, headers=headers, json=data)
+            # print('resresresresresresresresresresresresresresresres',res)
         except Exception as e:
             _logger.warning("[SHIPSTATION] %s: %s\n%s" % (endpoint, data, e))
             res = False
@@ -114,7 +115,10 @@ class ShipstationConnector(models.AbstractModel):
 
     def _create_order(self, vals={}):
         data = {}
+        # print('valsvalsvalsvals',vals)
         res = self._send_request('/orders/createorder', vals, method="POST")
+        # print('resresresresresresres',res)
+
         if res and res.ok:
             data = res.json()
         return data

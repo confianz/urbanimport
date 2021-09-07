@@ -2,6 +2,7 @@
 
 from . import sale
 from . import product_template
+from . import partner
 # from . import stock_warehouse
 
 

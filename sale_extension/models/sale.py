@@ -17,12 +17,12 @@ class SaleOrder(models.Model):
     delivery_address = fields.Text("Delivery Address Text")
     delivery_created_id = fields.Many2one('res.partner', string='Delivery Created')
 
-    @api.onchange('partner_id')
-    def onchange_partner_id(self):
-        super(SaleOrder, self).onchange_partner_id()
-        self.update({
-            'partner_shipping_id': False,
-        })
+    # @api.onchange('partner_id')
+    # def onchange_partner_id(self):
+    #     super(SaleOrder, self).onchange_partner_id()
+    #     self.update({
+    #         'partner_shipping_id': False,
+    #     })
 
     @api.onchange('delivery_address')
     def on_change_delivery_address(self):

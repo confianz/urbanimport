@@ -158,10 +158,11 @@ class SaleOrderLine(models.Model):
         return line
 
     def write(self, vals):
-        if len(self.order_id.order_line.filtered(lambda o_line: o_line.product_id.type != 'service').ids) == 1:
-            product_id = self.order_id.order_line.mapped('product_id')[0]
-            qty = self.order_id.order_line.mapped('product_uom_qty')[0]
-            if product_id.is_flat_rate and product_id.delivery_carrier_id == self.order_id.carrier_id and self.name == product_id.delivery_carrier_id.name:
-                vals['price_unit'] = product_id.flat_rate * qty
+        for so_line in self:
+            if len(so_line.order_id.order_line.filtered(lambda o_line: o_line.product_id.type != 'service').ids) == 1:
+                product_id = so_line.order_id.order_line.mapped('product_id')[0]
+                qty = so_line.order_id.order_line.mapped('product_uom_qty')[0]
+                if product_id.is_flat_rate and product_id.delivery_carrier_id == so_line.order_id.carrier_id and so_line.name == product_id.delivery_carrier_id.name:
+                    vals['price_unit'] = product_id.flat_rate * qty
         line = super(SaleOrderLine, self).write(vals)
         return line

@@ -60,11 +60,6 @@ class SaleOrder(models.Model):
                 state = self.env['res.country.state'].sudo().search(
                     [('code', '=', str(state_code.strip())), ('country_id', '=', self.partner_id.country_id.id)],
                     limit=1)
-                # print ('state_name',state_name)
-                # print ('city',city)
-                # print ('zip',zipcode)
-                # print ('zip',len(zipcode))
-                # print ('state',state)
                 if not state:
                     raise UserError("State Not found for the given State Code.")
                 vals.update({
@@ -78,14 +73,19 @@ class SaleOrder(models.Model):
                 })
                 if self.delivery_created_id:
                     self.delivery_created_id.write(vals)
-                    self.delivery_created_id.company_contact_id.write({'parent_id': self.delivery_created_id.id})
-                    # print('self.partner_shipping_id',self.partner_shipping_id)
-                    self.partner_shipping_id = self.delivery_created_id
+                    if self.delivery_created_id.company_contact_id:
+                        self.delivery_created_id.company_contact_id.write({'parent_id': self.delivery_created_id.id})
+                        self.partner_shipping_id = self.delivery_created_id.company_contact_id.id
+                    else:
+                        self.partner_shipping_id = self.delivery_created_id.id
                 else:
                     new_partner_shipping_id = self.env['res.partner'].create(vals)
                     self.delivery_created_id = new_partner_shipping_id.id
-                    self.partner_shipping_id = new_partner_shipping_id.id
-                    self.delivery_created_id.company_contact_id.write({'parent_id': new_partner_shipping_id.id})
+                    if self.delivery_created_id.company_contact_id:
+                        self.delivery_created_id.company_contact_id.write({'parent_id': self.delivery_created_id.id})
+                        self.partner_shipping_id = self.delivery_created_id.company_contact_id.id
+                    else:
+                        self.partner_shipping_id = new_partner_shipping_id.id
         except Exception as e:
             raise UserError(_('Please check the Address format \n %s' % e))
 

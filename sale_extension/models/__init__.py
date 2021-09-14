@@ -3,6 +3,7 @@
 from . import sale
 from . import product_template
 from . import partner
+from . import account_move
 # from . import stock_warehouse
 
 

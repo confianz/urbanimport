@@ -4,7 +4,7 @@ from odoo import models, fields,api
 
 
 class ContainerConfig(models.TransientModel):
-    _name = 'container.config'
+    # _name = 'container.config'
     _description = "Container Configuration"
     _inherit ='res.config.settings'
 

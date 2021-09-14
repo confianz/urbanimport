@@ -27,7 +27,7 @@
 
         <menuitem id="configuration_menu" name="Configuration"  parent="container_management_menu"  sequence="9"/>
         <menuitem id = "container_config_menu"  name = "Settings"  parent = "configuration_menu"
-        action = "container_config_menu_action" sequence="1"/>
+        action = "container_config_menu_company_action" sequence="1"/>
 
 
     </data>

@@ -27,7 +27,6 @@
 "access_hbl_customs_duty_base_group_user","access.hbl.customs.duty.base.group.user","container_management.model_hbl_customs_duty","base.group_user",1,0,0,0
 "access_product_hts_code_base_group_user","access.product.hts.code.base.group.user","container_management.model_product_hts_code","base.group_user",1,0,0,0
 "access_select_container_wizard","access.select.container.wizard","container_management.model_select_container_wizard","stock.group_stock_manager",1,1,1,0
-"access_container_config","access.container.config","container_management.model_container_config","stock.group_stock_manager",1,1,1,1
 "access_po_shipment_report","access.po.shipment.report","container_management.model_po_shipment_report","stock.group_stock_manager",1,1,1,1
 "access_po_shipment_excel","access.po.shipment.excel","container_management.model_po_shipment_excel","stock.group_stock_manager",1,1,1,1
 "access_container_wizard","access.container.wizard","container_management.model_container_wizard","stock.group_stock_manager",1,1,1,0

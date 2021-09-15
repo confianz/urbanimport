@@ -165,6 +165,7 @@ class SaleOrder(models.Model):
             currency_id=self.currency_id,
         )
         tax_result_lines = {int(x["lineNumber"]): x for x in tax_result["lines"]}
+        # print('tax_result_linestax_result_lines',tax_result_lines)
         for line in self.order_line:
             tax_result_line = tax_result_lines.get(line.id)
             if tax_result_line:
@@ -173,6 +174,7 @@ class SaleOrder(models.Model):
                 # rate = round(tax_amount / line.price_subtotal * 100, 2)
                 rate = tax_result_line["rate"]
                 tax = Tax.get_avalara_tax(rate, doc_type)
+                # print('taxtaxtax',tax)
                 if tax not in line.tax_id:
                     line_taxes = line.tax_id.filtered(lambda x: not x.is_avatax)
                     line.tax_id = line_taxes | tax
@@ -192,13 +194,13 @@ class SaleOrder(models.Model):
 
     def action_confirm(self):
         avatax_config = self.company_id.get_avatax_config_company()
-        if avatax_config and avatax_config.force_address_validation:
+        if avatax_config and self.order_line and avatax_config.force_address_validation:
             for addr in [self.partner_id, self.partner_shipping_id]:
                 if not addr.date_validation:
                     # The Confirm action will be interrupted
                     # if the address is not validated
                     return addr.button_avatax_validate_address()
-        if avatax_config:
+        if avatax_config and self.order_line:
             self.avalara_compute_taxes()
         res = super(SaleOrder, self).action_confirm()
         return res

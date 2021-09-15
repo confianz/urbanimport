@@ -11,7 +11,7 @@ import time
 import base64
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.product.models.product import ProductProduct
-
+import re
 _logger = logging.getLogger("BigCommerce")
 
 
@@ -59,7 +59,17 @@ class ProductTemplate(models.Model):
     is_imported_from_bigcommerce = fields.Boolean(string="Is Imported From Big Commerce ?", copy=False)
     x_studio_manufacturer = fields.Many2one('bc.product.brand', string='Manufacturer')
     bc_product_image_id = fields.Char(string='BC Product Image', copy=False)
-
+    
+    @api.model
+    def GetProductDescription(self, description):
+        if description:
+            desc = re.sub('<[^<]+?>', '', description)
+            desc = re.sub(r'&(.*?);', '', desc)
+            description = desc
+        else:
+            description = description
+        return description
+    
     def create_bigcommerce_operation(self, operation, operation_type, bigcommerce_store_id, log_message, warehouse_id):
         vals = {
             'bigcommerce_operation': operation,
@@ -180,7 +190,8 @@ class ProductTemplate(models.Model):
             "default_code": record.get("sku"),
             "is_imported_from_bigcommerce": True,
             "x_studio_manufacturer": brand_id and brand_id.id,
-            "description_sale": record.get('description')
+            #"description_sale": record.get('description'),
+            "description_sale":  self.GetProductDescription(record.get('description'))
         }
         product_template = product_template_obj.with_user(1).create(vals)
         _logger.info("Product Created: {}".format(product_template))
@@ -507,7 +518,8 @@ class ProductTemplate(models.Model):
                         "is_exported_to_bigcommerce": True,
                         "name": product_name,
                         "x_studio_manufacturer": brand_id and brand_id.id,
-                        "description_sale": record.get('description')
+                        #"description_sale": record.get('description'),
+                        "description_sale":  self.GetProductDescription(record.get('description'))
                     })
                     _logger.info("{0}".format(process_message))
                     self._cr.commit()

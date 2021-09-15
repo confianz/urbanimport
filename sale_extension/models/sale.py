@@ -91,7 +91,7 @@ class SaleOrder(models.Model):
 
     def action_confirm(self):
         res = super(SaleOrder, self).action_confirm()
-        if self.bigcommerce_store_id:
+        if self.bigcommerce_store_id and self.order_line:
             invoice = self._create_invoices()
             invoice.action_post()
             Journal = self.env['account.journal'].search(

@@ -383,6 +383,7 @@ class SaleOrderVts(models.Model):
                                             self.create_bigcommerce_operation_detail('order', 'import', req_data, response_data,
                                                                                      operation_id, warehouse_id, True,
                                                                                      product_message)
+                                        order_id.action_confirm()
                                 except Exception as e:
                                     _logger.info("Getting an Error In Import Order Line Response {}".format(e))
                                     process_message = "Getting an Error In Import Order Response {}".format(e,order_id and order_id.name)

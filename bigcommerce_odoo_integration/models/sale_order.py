@@ -203,6 +203,7 @@ class SaleOrderVts(models.Model):
                         response_data = response_data.json()
                         _logger.info("Order Response Data : {0}".format(response_data))
                         for order in response_data:
+                            order_id =None
                             if order.get('status') == 'Cancelled':
                                 continue
                             big_commerce_order_id = order.get('id')
@@ -228,7 +229,9 @@ class SaleOrderVts(models.Model):
                                 total_tax= order.get('total_tax')
                                 customerId = order.get('customer_id')
                                 carrier_id  = self.env['delivery.carrier'].search([('is_bigcommerce_shipping_method','=',True)],limit=1)
-                                partner_obj = self.env['res.partner'].search([('bigcommerce_customer_id', '=', customerId)], limit=1)
+                                partner_obj = self.env['res.partner'].search(
+                                    [('bigcommerce_customer_id', '=', customerId), (
+                                        'bigcommerce_store_id', '=', bigcommerce_store_id.id)], limit=1)
                                 partner_vals = {
                                         'phone': phone,
                                         'zip':zip,
@@ -383,7 +386,7 @@ class SaleOrderVts(models.Model):
                                             self.create_bigcommerce_operation_detail('order', 'import', req_data, response_data,
                                                                                      operation_id, warehouse_id, True,
                                                                                      product_message)
-                                        order_id.action_confirm()
+                                        #order_id.action_confirm()
                                 except Exception as e:
                                     _logger.info("Getting an Error In Import Order Line Response {}".format(e))
                                     process_message = "Getting an Error In Import Order Response {}".format(e,order_id and order_id.name)
@@ -395,6 +398,7 @@ class SaleOrderVts(models.Model):
                                                                          operation_id, warehouse_id, True,
                                                                          process_message)
                                 self._cr.commit()
+                            order_id and order_id.action_confirm()
                         if not late_modification_date_flag:
                             current_date = datetime.now()
                             bigcommerce_store_id.last_modification_date=current_date
@@ -449,7 +453,8 @@ class SaleOrderVts(models.Model):
                     carrier_id = self.env['delivery.carrier'].with_user(1).search(
                         [('is_bigcommerce_shipping_method', '=', True)], limit=1)
                     partner_obj = self.env['res.partner'].with_user(1).search(
-                        [('bigcommerce_customer_id', '=', customerId)], limit=1)
+                        [('bigcommerce_customer_id', '=', customerId), (
+                            'bigcommerce_store_id', '=', bigcommerce_store_id.id)], limit=1)
                     partner_vals = {
                         'name': "%s %s" % (first_name, last_name),
                         'phone': phone,

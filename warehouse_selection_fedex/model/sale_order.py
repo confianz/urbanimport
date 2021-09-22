@@ -111,7 +111,8 @@ class SaleOrder(models.Model):
         return upcoming_shipments
 
     def find_set_delivery_line(self, carrier, price):
-        if self.bigcommerce_store_id or self.channel_mapping_ids or self.is_amazon_order:
+        # if self.bigcommerce_store_id or self.channel_mapping_ids or self.is_amazon_order:
+        if self.channel_mapping_ids or self.is_amazon_order:
             carrier = self.env['delivery.carrier'].search(
                 [('delivery_type', '=', 'shipstation'), ('shipstation_service_code', '=', 'usps_priority_mail')],
                 limit=1)
@@ -278,6 +279,7 @@ class SaleOrder(models.Model):
                 warehouse = order.update_warehouse(classification)
                 if warehouse:
                     order.warehouse_id = warehouse.id
-        if order.bigcommerce_store_id or order.channel_mapping_ids or order.is_amazon_order:
+        # if order.bigcommerce_store_id or order.channel_mapping_ids or order.is_amazon_order:
+        if order.is_amazon_order:
             order.action_confirm()
         return order

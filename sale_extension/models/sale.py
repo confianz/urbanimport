@@ -33,56 +33,91 @@ class SaleOrder(models.Model):
                     raise UserError("Please select the Customer before entering the delivery address.")
                 non_empty_lines = [line for line in delivery_address.split('\n') if line.strip() != ""]
                 no_of_lines = len([line for line in delivery_address.split('\n') if line.strip() != ""])
-                # print('non_empty_linesnon_empty_linesnon_empty_lines', non_empty_lines)
-                # print('no_of_linesno_of_linesno_of_linesno_of_lines', no_of_lines)
-
-                if no_of_lines == 4:
+                flg = True
+                if no_of_lines == 5:
+                    comp ='company'
                     company_name = non_empty_lines[0]
                     name = non_empty_lines[1]
                     street = non_empty_lines[2]
-                    city, state_code, zipcode = [(non_empty_lines[3].split(','))[i] for i in (0, 1, 2)]
+                    phn = non_empty_lines[4]
+                    city = (non_empty_lines[3].split(','))[0]
+                    zipcode = ((non_empty_lines[3].split(','))[1]).split(' ')[-1]
+                    state_code_list = ((non_empty_lines[3].split(','))[1]).split(' ')[:-1]
+                    state_code = (''.join(state_code_list))
+                    # city, state_code, zipcode = [(non_empty_lines[3].split(','))[i] for i in (0, 1, 2)]
                     if self.delivery_created_id and self.delivery_created_id.company_contact_id:
                         company_contact_id = self.delivery_created_id.company_contact_id
-                        self.delivery_created_id.company_contact_id.write({'name': name})
+                        self.delivery_created_id.company_contact_id.write({'name': name, 'phone': phn})
                     else:
-                        company_contact_id = self.env['res.partner'].create(
-                            {'name': name, 'type': 'contact', 'company_type': 'person'})
+                        company_contact_id = self.env['res.partner'].with_context(active_test=False).search(
+                            [('name', '=', name), ('type', '=', 'contact'),
+                             ('company_type', '=', 'person'),
+                             ('parent_id.name', '=', company_name)], limit=1)
+                        if not company_contact_id:
+                            company_contact_id = self.env['res.partner'].create(
+                                {'name': name, 'type': 'contact', 'company_type': 'person', 'phone': phn})
                     vals = {'company_type': 'company', 'company_contact_id': company_contact_id.id,
                             'name': company_name}
-                elif no_of_lines == 3:
+                    # selected_address = company_contact_id
+                    domain = [('name', '=', company_name), ('type', '=', 'delivery'), ('parent_id', '=', self.partner_id.id),
+                              ('company_type', '=', 'company')]
+                elif no_of_lines == 4:
+                    comp = 'person'
                     name = non_empty_lines[0]
                     street = non_empty_lines[1]
-                    city, state_code, zipcode = [(non_empty_lines[2].split(','))[i] for i in (0, 1, 2)]
-                    vals = {'company_type': 'person', 'name': name}
+                    phn = non_empty_lines[3]
+                    city = (non_empty_lines[2].split(','))[0]
+                    zipcode = ((non_empty_lines[2].split(','))[1]).split(' ')[-1]
+                    state_code_list = ((non_empty_lines[2].split(','))[1]).split(' ')[:-1]
+                    state_code = (''.join(state_code_list))
+                    # city, state_code, zipcode = [(non_empty_lines[2].split(','))[i] for i in (0, 1, 2)]
+                    vals = {'company_type': 'person', 'name': name, 'phone': phn, 'company_contact_id': False}
+                    domain = [('name', '=', name), ('company_type', '=', 'person'),
+                              ('parent_id', '=', self.partner_id.id), ('type', '=', 'delivery')]
+                    # selected_address = self.env['res.partner'].with_context(active_test=False).search([('name','=',name), ('company_type', '=', 'person')], limit=1)
                 else:
                     raise UserError("Please check the number of lines entered.")
+
                 zipcode = str(zipcode.strip())
                 state = self.env['res.country.state'].sudo().search(
-                    [('code', '=', str(state_code.strip())), ('country_id', '=', self.partner_id.country_id.id)],
+                    [('country_id', '=', self.partner_id.country_id.id), '|', ('code', '=', str(state_code.strip())),
+                     ('name', 'ilike', str(state_code.strip()))],
                     limit=1)
                 if not state:
-                    raise UserError("State Not found for the given State Code.")
+                    raise UserError("State Not Found.")
                 vals.update({
                     'type': 'delivery',
                     'street': street,
                     'city': city,
                     'state_id': state.id,
                     'zip': zipcode,
+                    # 'child_ids': False,
                     'parent_id': self.partner_id.id,
                     'country_id': self.partner_id.country_id.id
                 })
-                if self.delivery_created_id:
+                if self.partner_id.archive_delivery_address:
+                    vals.update({
+                        'active': False,
+                    })
+                    flg = False
+                if self.delivery_created_id and self.delivery_created_id.company_type == comp:
                     self.delivery_created_id.write(vals)
                     if self.delivery_created_id.company_contact_id:
-                        self.delivery_created_id.company_contact_id.write({'parent_id': self.delivery_created_id.id})
+                        self.delivery_created_id.company_contact_id.write(
+                            {'parent_id': self.delivery_created_id.id, 'active': flg})
                         self.partner_shipping_id = self.delivery_created_id.company_contact_id.id
                     else:
                         self.partner_shipping_id = self.delivery_created_id.id
                 else:
-                    new_partner_shipping_id = self.env['res.partner'].create(vals)
+                    new_partner_shipping_id = self.env['res.partner'].with_context(active_test=False).search(domain,
+                                                                                                             limit=1)
+                    new_partner_shipping_id.write(vals)
+                    if not new_partner_shipping_id:
+                        new_partner_shipping_id = self.env['res.partner'].create(vals)
                     self.delivery_created_id = new_partner_shipping_id.id
                     if self.delivery_created_id.company_contact_id:
-                        self.delivery_created_id.company_contact_id.write({'parent_id': self.delivery_created_id.id})
+                        self.delivery_created_id.company_contact_id.write(
+                            {'parent_id': self.delivery_created_id.id, 'active': flg})
                         self.partner_shipping_id = self.delivery_created_id.company_contact_id.id
                     else:
                         self.partner_shipping_id = new_partner_shipping_id.id

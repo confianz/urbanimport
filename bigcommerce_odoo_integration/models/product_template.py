@@ -12,6 +12,7 @@ import base64
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.product.models.product import ProductProduct
 import re
+import html2text
 _logger = logging.getLogger("BigCommerce")
 
 
@@ -63,12 +64,8 @@ class ProductTemplate(models.Model):
     @api.model
     def GetProductDescription(self, description):
         if description:
-            desc = re.sub('<[^<]+?>', '', description)
-            desc = re.sub(r'&(.*?);', '', desc)
-            description = desc
-        else:
-            description = description
-        return description
+            desc = html2text.html2text(description)
+        return desc
     
     def create_bigcommerce_operation(self, operation, operation_type, bigcommerce_store_id, log_message, warehouse_id):
         vals = {
@@ -315,7 +312,8 @@ class ProductTemplate(models.Model):
                                         "is_imported_from_bigcommerce": True,
                                         "is_exported_to_bigcommerce": True,
                                         "x_studio_manufacturer": brand_id and brand_id.id,
-                                        "name": record.get('name')
+                                        "name": record.get('name'),
+                                        "description_sale":  self.GetProductDescription(record.get('description'))
                                     })
                                     self.with_user(1).create_bigcommerce_operation_detail('product', 'import', req_data,
                                                                                           response_data, operation_id,

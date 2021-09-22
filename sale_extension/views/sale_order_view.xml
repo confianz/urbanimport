@@ -18,11 +18,11 @@
                     <!--                        <field name="height" string="Height"/>-->
                     <!--                        <span>Inches</span>-->
                     <!--                    </div>-->
-                    <div class="o_row" style="height:80px;">
+                    <div class="o_row" style="height:94px;">
                         <field name="delivery_address" groups="sale.group_delivery_invoice_address"
                                attrs="{'readonly': [('state', 'not in', ['sale', 'sent', 'draft'])]}"
                                class="apply_dimension"
-                               placeholder="Company Name(Optional) &#10;Contact Name &#10;Street &#10;City, State Code, Zip"/>
+                               placeholder="Company Name(Optional) &#10;Contact Name &#10;Street &#10;City, State/State Code Zip &#10;Phone Number"/>
                         <field name="delivery_created_id" force_save="1" invisible="1"/>
                     </div>
                 </xpath>
